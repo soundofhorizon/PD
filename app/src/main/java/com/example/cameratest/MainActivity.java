@@ -2,6 +2,7 @@ package com.example.cameratest;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,9 +10,20 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.Manifest;
+//import android.support.v4.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +33,10 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static int RESULT_CAMERA = 1001;
+    private FusedLocationProviderClient fusedLocationClient;
 
+
+    private final static int RESULT_CAMERA = 1001;
     private ImageView imageView;
     private Uri cameraUri;
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -57,11 +71,20 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener( v -> {
             if(isExternalStorageWritable()){
                 cameraIntent();
+                startUpdateLocation();
+                Log.d("","デバッグです00");
+
             }
         });
     }
 
+    private boolean isExternalStorageWritable() {
+                String state = Environment.getExternalStorageState();
+        return (Environment.MEDIA_MOUNTED.equals(state));
+    }
+
     private void cameraIntent(){
+
         Context context = getApplicationContext();
         // 保存先のフォルダー
         File cFolder = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
@@ -103,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        Log.d("","デバッグです01");
+
         Log.d("debug","startActivityForResult()");
     }
 
@@ -120,14 +145,53 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("debug","cameraUri == null");
             }
         }
+
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // 位置情報取得開始
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
+            startUpdateLocation();
+        }
+    }
+    private void startUpdateLocation(){
+        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+            ActivityCompat.requestPermissions(this, permissions, 2000);
+            return;
+        }
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);       // 位置情報更新間隔の希望
+        locationRequest.setFastestInterval(5000); // 位置情報更新間隔の最速値
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        fusedLocationClient.requestLocationUpdates(locationRequest,  new MyLocationCallback(), null);
+
+    }
+    private class MyLocationCallback extends LocationCallback {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            if (locationResult == null) {
+                return;
+            }
+            // 現在値を取得
+            Location location = locationResult.getLastLocation();
+            TextView view = findViewById(R.id.text_ido);
+            view.setText("緯度:" + location.getLatitude() + " 経度:" + location.getLongitude());
+            Log.d("","デバッグです05");
+        };
+    }
+
 
     /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return (Environment.MEDIA_MOUNTED.equals(state));
-    }
-
+//    public boolean isExternal{
+//     lStorageWritable() {
+//        String state = Environment.getExternalStorageState();
+//        return (Environment.MEDIA_MOUNTED.equals(state));
+//    }
+//}
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
