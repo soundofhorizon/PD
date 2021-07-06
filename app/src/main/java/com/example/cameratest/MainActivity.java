@@ -1,14 +1,18 @@
 package com.example.cameratest;
 
+
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -21,13 +25,85 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static int RESULT_CAMERA = 1001;
 
+    private final static int REQUEST_CAMERA = 1001;
+    private String currentPhotoPath;
     private ImageView imageView;
     private Uri cameraUri;
     static final int REQUEST_TAKE_PHOTO = 1;
 
-    String currentPhotoPath;
+
+
+
+
+
+
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d("debug","onCreate()");
+        setContentView(R.layout.activity_main);
+
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(new CameraView(this));
+        addContentView(new CameraOverlayView(this), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+
+
+
+
+        imageView = findViewById(R.id.image_view);
+
+
+
+
+        Button cameraButton = findViewById(R.id.camera_button);
+        cameraButton.setOnClickListener( v -> {
+            if(isExternalStorageWritable()){
+                cameraIntent();
+            }
+        });
+    }
+
+
+
+
+    private void cameraIntent(){
+        Context context = getApplicationContext();
+        // 保存先のフォルダー
+        File cFolder = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+        Log.d("log","path: " + String.valueOf(cFolder));
+
+        String fileDate = new SimpleDateFormat(
+                "ddHHmmss", Locale.US).format(new Date());
+        // ファイル名
+        String fileName = String.format("CameraIntent_%s.jpg", fileDate);
+
+        File cameraFile = new File(cFolder, fileName);
+
+        cameraUri  = FileProvider.getUriForFile(
+                MainActivity.this,
+                context.getPackageName() + ".fileprovider",
+                cameraFile);
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
+        startActivityForResult(intent, REQUEST_CAMERA);
+
+
+
+
+        Log.d("","デバッグです01");
+
+
+
+        Log.d("debug","startActivityForResult()");
+    }
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -45,73 +121,15 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d("debug","onCreate()");
-        setContentView(R.layout.activity_main);
 
-        imageView = findViewById(R.id.image_view);
 
-        Button cameraButton = findViewById(R.id.camera_button);
-        cameraButton.setOnClickListener( v -> {
-            if(isExternalStorageWritable()){
-                cameraIntent();
-            }
-        });
-    }
-
-    private void cameraIntent(){
-        Context context = getApplicationContext();
-        // 保存先のフォルダー
-        File cFolder = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
-        Log.d("log","path: " + String.valueOf(cFolder));
-
-        String fileDate = new SimpleDateFormat(
-                "ddHHmmss", Locale.US).format(new Date());
-        // ファイル名
-        String fileName = String.format("CameraIntent_%s.jpg", fileDate);
-
-        File cameraFile = new File(cFolder, fileName);
-
-        cameraUri = FileProvider.getUriForFile(
-                MainActivity.this,
-                context.getPackageName() + ".fileprovider",
-                cameraFile);
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
-        startActivityForResult(intent, RESULT_CAMERA);
-
-        // Ensure that there's a camera activity to handle the intent
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Log.d("Error on saving Image","createImageFile()");
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        context.getPackageName() + ".fileprovider",
-                        photoFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(intent, REQUEST_TAKE_PHOTO);
-            }
-        }
-
-        Log.d("debug","startActivityForResult()");
-    }
 
     @Override
     protected void onActivityResult(int requestCode,
                                     int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if (requestCode == RESULT_CAMERA) {
+        if (requestCode == REQUEST_CAMERA) {
 
             if(cameraUri != null && isExternalStorageReadable()){
                 imageView.setImageURI(cameraUri);
@@ -121,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    
+
+
 
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
@@ -134,4 +156,9 @@ public class MainActivity extends AppCompatActivity {
         return (Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
     }
+
+
+
+
+
 }
