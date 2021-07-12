@@ -65,17 +65,50 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug","onCreate()");
         setContentView(R.layout.activity_main);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        startUpdateLocation();
+
         imageView = findViewById(R.id.image_view);
 
         Button cameraButton = findViewById(R.id.camera_button);
         cameraButton.setOnClickListener( v -> {
             if(isExternalStorageWritable()){
                 cameraIntent();
-                startUpdateLocation();
-                Log.d("","デバッグです00");
 
             }
         });
+    }
+    private void startUpdateLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 権限がない場合、許可ダイアログ表示
+            String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+            ActivityCompat.requestPermissions(this, permissions, 2000);
+            return;
+        }
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);       // 位置情報更新間隔の希望
+        locationRequest.setFastestInterval(5000); // 位置情報更新間隔の最速値
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        fusedLocationClient.requestLocationUpdates(locationRequest,  new MyLocationCallback(), null);
+    }
+    private class MyLocationCallback extends LocationCallback {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            if (locationResult == null) {
+                return;
+            }
+            // 現在値を取得
+            Location location = locationResult.getLastLocation();
+            TextView view = findViewById(R.id.text_view);
+            view.setText("緯度:" + location.getLatitude() + " 経度:" + location.getLongitude());
+        };
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // 位置情報取得開始
+            startUpdateLocation();
+        }
     }
 
     private boolean isExternalStorageWritable() {
@@ -126,8 +159,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Log.d("","デバッグです01");
-
         Log.d("debug","startActivityForResult()");
     }
 
@@ -146,42 +177,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if(requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // 位置情報取得開始
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-
-            startUpdateLocation();
-        }
-    }
-    private void startUpdateLocation(){
-        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
-            ActivityCompat.requestPermissions(this, permissions, 2000);
-            return;
-        }
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000);       // 位置情報更新間隔の希望
-        locationRequest.setFastestInterval(5000); // 位置情報更新間隔の最速値
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        fusedLocationClient.requestLocationUpdates(locationRequest,  new MyLocationCallback(), null);
-
-    }
-    private class MyLocationCallback extends LocationCallback {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                return;
-            }
-            // 現在値を取得
-            Location location = locationResult.getLastLocation();
-            TextView view = findViewById(R.id.text_ido);
-            view.setText("緯度:" + location.getLatitude() + " 経度:" + location.getLongitude());
-            Log.d("","デバッグです05");
-        };
     }
 
 
