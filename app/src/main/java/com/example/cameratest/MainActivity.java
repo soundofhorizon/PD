@@ -25,6 +25,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -93,19 +95,17 @@ public class MainActivity extends AppCompatActivity {
     }
     private class MyLocationCallback extends LocationCallback {
         @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                return;
-            }
+        public void onLocationResult(@NotNull LocationResult locationResult) {
             // 現在値を取得
             Location location = locationResult.getLastLocation();
             TextView view = findViewById(R.id.text_view);
             view.setText("緯度:" + location.getLatitude() + " 経度:" + location.getLongitude());
-        };
+        }
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if(requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // 位置情報取得開始
             startUpdateLocation();
         }
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         // 保存先のフォルダー
         File cFolder = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
-        Log.d("log","path: " + String.valueOf(cFolder));
+        Log.d("log","path: " + cFolder);
 
         String fileDate = new SimpleDateFormat(
                 "ddHHmmss", Locale.US).format(new Date());
