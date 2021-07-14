@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     private FusedLocationProviderClient fusedLocationClient;
 
-
     private final static int RESULT_CAMERA = 1001;
     private ImageView imageView;
     private Uri cameraUri;
