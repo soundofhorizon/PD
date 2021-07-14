@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 cameraIntent();
             }
         });
+
     }
     private void startUpdateLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
