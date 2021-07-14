@@ -4,6 +4,7 @@ package com.example.cameratest;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,8 +15,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout.LayoutParams;
 
+import android.Manifest;
+//import android.support.v4.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+
+import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int REQUEST_CAMERA = 1001;
     private String currentPhotoPath;
+
+    private final static int RESULT_CAMERA = 1001;
     private ImageView imageView;
     private Uri cameraUri;
     static final int REQUEST_TAKE_PHOTO = 1;
-
-
 
 
 
@@ -70,6 +78,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void startUpdateLocation() {
+    }
+
+
+
 
 
 
@@ -99,6 +112,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.d("","デバッグです01");
+
+        startActivityForResult(intent, RESULT_CAMERA);
+
+        // Ensure that there's a camera activity to handle the intent
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.d("Error on saving Image","createImageFile()");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        context.getPackageName() + ".fileprovider",
+                        photoFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+            }
+        }
 
 
 
