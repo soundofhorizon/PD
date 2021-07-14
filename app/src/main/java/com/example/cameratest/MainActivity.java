@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener( v -> {
             if(isExternalStorageWritable()){
                 cameraIntent();
-
             }
         });
     }
@@ -156,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_TAKE_PHOTO);
             }
         }
-
         Log.d("debug","startActivityForResult()");
     }
 
@@ -174,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("debug","cameraUri == null");
             }
         }
-
     }
 
 
