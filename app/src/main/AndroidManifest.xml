@@ -3,7 +3,11 @@
     package="com.example.cameratest">
 
     <uses-permission android:name="android.permission.CAMER" />
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
     <uses-permission android:name="android.hardware.camera" />
 
     <queries>
@@ -19,7 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cameratest">
-
+        <activity android:name=".CameraView"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
