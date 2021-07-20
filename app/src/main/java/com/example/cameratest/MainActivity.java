@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        startUpdateLocation();
+
 
         imageView = findViewById(R.id.image_view);
 
@@ -169,8 +169,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode,
-                                    int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == RESULT_CAMERA) {
@@ -182,20 +181,14 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("debug","cameraUri == null");
             }
         }
+        startUpdateLocation();
     }
 
-
-    /* Checks if external storage is available for read and write */
-//    public boolean isExternal{
-//     lStorageWritable() {
-//        String state = Environment.getExternalStorageState();
-//        return (Environment.MEDIA_MOUNTED.equals(state));
-//    }
-//}
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         return (Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
     }
+
 }
