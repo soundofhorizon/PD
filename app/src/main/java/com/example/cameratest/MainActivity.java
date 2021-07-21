@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(new CameraView(this));
-        addContentView(new CameraOverlayView(this), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         setContentView(R.layout.activity_main);
+        addContentView(new Box(this), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
