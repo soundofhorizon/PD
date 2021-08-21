@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
@@ -42,6 +43,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -68,6 +70,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -232,7 +235,7 @@ public class Camera2BasicFragment extends Fragment
     /**
      * This is the output file for our picture.
      */
-    private File mFile;
+    public static File mFile;
 
     /**
      * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
@@ -427,14 +430,13 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
-        view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+        mFile = new File(Objects.requireNonNull(getActivity()).getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "pic.jpg");
     }
 
     @Override
@@ -842,6 +844,8 @@ public class Camera2BasicFragment extends Fragment
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
+                    Log.d("DEBUG", "after save Picture");
+                    Objects.requireNonNull(getActivity()).finish();
                 }
             };
 
@@ -889,20 +893,11 @@ public class Camera2BasicFragment extends Fragment
     }
 
     @Override
-    public void onClick(View view) {
+    public void onClick(final View view) {
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
-                break;
-            }
-            case R.id.info: {
-                Activity activity = getActivity();
-                if (null != activity) {
-                    new AlertDialog.Builder(activity)
-                            .setMessage(R.string.intro_message)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                }
+                Log.d("DEBUG", "after click Button");
                 break;
             }
         }
@@ -1036,26 +1031,5 @@ public class Camera2BasicFragment extends Fragment
                     .create();
         }
     }
-//        位置情報メソッド
-//        private void startUpdateLocation() {
-//            // 位置情報取得権限の確認
-//            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                // 権限がない場合、許可ダイアログ表示
-//                String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
-//                ActivityCompat.requestPermissions(this, permissions, 2000);
-//                return;
-//            }
-//
-//            // ここに位置情報の取得開始処理をあとで書きます。
-//        }
-//
-//    /**
-//     * 許可ダイアログの結果受取
-//     * @param requestCode
-//     * @param permissions
-//     * @param grantResults
-//     */
-
-
-    }
+}
 

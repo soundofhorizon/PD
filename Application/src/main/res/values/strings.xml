@@ -18,4 +18,11 @@
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="button">Button</string>
+    <string name="button2">Button</string>
+    <string name="ImageView">ImageView</string>
+    <string name="number_plate">ナンバープレートを取る</string>
+    <string name="go_back">GO BACK</string>
+    <string name="show_taken_picture">撮影した写真を表示</string>
+    <string name="description_for_read_image">写真を撮影後、「撮影した写真を表示」ボタンをタップし画像を更新してください。</string>
 </resources>
