@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.LinearLayout;
 
 public class CameraActivity extends AppCompatActivity implements LocationListener {
 
@@ -37,6 +38,9 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+
+        addContentView(new overlay(this), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+
         if (null == savedInstanceState) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
@@ -118,6 +122,9 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
                 break;
         }
     }
+
+
+
 
     @Override
     public void onProviderDisabled(String provider) {
