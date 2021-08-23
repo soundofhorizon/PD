@@ -9,7 +9,7 @@ technologies: [Android]
 categories:   [Media, Camera, Camera2]
 languages:    [Java]
 solutions:    [Mobile]
-github:       android-Camera2Basic
+github:       android-ProjectD-TeamA2-Application
 level:        INTERMEDIATE
 icon:         screenshots/icon-web.png
 apiRefs:

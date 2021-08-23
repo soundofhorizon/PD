@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camera2basic;
+package com.example.android.ProjectDTeamA2Application;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -121,9 +121,6 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
                 break;
         }
     }
-
-
-
 
     @Override
     public void onProviderDisabled(String provider) {

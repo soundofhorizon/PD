@@ -13,11 +13,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.example.android.camera2basic.tests;
-
-import com.example.android.camera2basic.*;
+package com.example.android.ProjectDTeamA2Application.tests;
 
 import android.test.ActivityInstrumentationTestCase2;
+
+import com.example.android.ProjectDTeamA2Application.CameraActivity;
 
 /**
 * Tests for Camera2Basic sample.
@@ -49,9 +49,5 @@ public class SampleTests extends ActivityInstrumentationTestCase2<CameraActivity
         //a tests fails and make it easy to understand why a test failed
         assertNotNull("mTestActivity is null", mTestActivity);
     }
-
-    /**
-    * Add more tests below.
-    */
 
 }

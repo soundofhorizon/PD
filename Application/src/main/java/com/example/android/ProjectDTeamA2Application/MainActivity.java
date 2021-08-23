@@ -1,19 +1,18 @@
-package com.example.android.camera2basic;
+package com.example.android.ProjectDTeamA2Application;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,18 +33,15 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
 
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class ImageViewActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_CAPTURE_IMAGE = 100;
 
@@ -65,7 +61,7 @@ public class ImageViewActivity extends AppCompatActivity {
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
     private static final int MAX_LABEL_RESULTS = 1;
 
-    private static final String TAG = ImageViewActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +89,7 @@ public class ImageViewActivity extends AppCompatActivity {
             if(isExternalStorageReadable()){
                 try(InputStream inputStream0 =
                             new FileInputStream(file) ) {
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
+                    Bitmap bitmap = toGrayscale(BitmapFactory.decodeStream(inputStream0));
                     // 生成したbitmapをuploadする。
                     uploadImage(bitmap);
                     imageView1.setImageBitmap(bitmap);
@@ -196,10 +192,10 @@ public class ImageViewActivity extends AppCompatActivity {
     }
 
     private static class LableDetectionTask extends AsyncTask<Object, Void, String> {
-        private final WeakReference<ImageViewActivity> mActivityWeakReference;
+        private final WeakReference<MainActivity> mActivityWeakReference;
         private Vision.Images.Annotate mRequest;
 
-        LableDetectionTask(ImageViewActivity activity, Vision.Images.Annotate annotate) {
+        LableDetectionTask(MainActivity activity, Vision.Images.Annotate annotate) {
             mActivityWeakReference = new WeakReference<>(activity);
             mRequest = annotate;
         }
@@ -221,7 +217,7 @@ public class ImageViewActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(String result) {
-            ImageViewActivity activity = mActivityWeakReference.get();
+            MainActivity activity = mActivityWeakReference.get();
             if (activity != null && !activity.isFinishing()) {
                 TextView imageDetail = activity.findViewById(R.id.text_view);
                 imageDetail.setText(result);
@@ -284,5 +280,22 @@ public class ImageViewActivity extends AppCompatActivity {
                     intent,
                     REQUEST_CAPTURE_IMAGE);
         });
+    }
+
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
     }
 }
