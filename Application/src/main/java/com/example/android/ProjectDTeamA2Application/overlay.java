@@ -22,7 +22,7 @@ public class overlay extends View {
         paint.setStrokeWidth(10);
 
         //center
-        canvas.drawRect(50, 500, 1025, 1100, paint);
+        canvas.drawRect(50, 500, 1050, 1000, paint);
 
     }
 
