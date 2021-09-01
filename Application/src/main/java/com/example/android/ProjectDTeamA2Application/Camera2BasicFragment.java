@@ -582,8 +582,7 @@ public class Camera2BasicFragment extends Fragment
                 }
 
                 // Check if the flash is supported.
-                Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-                mFlashSupported = available != null && available;
+                mFlashSupported = false;
 
                 mCameraId = cameraId;
                 return;
@@ -899,7 +898,7 @@ public class Camera2BasicFragment extends Fragment
     private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
         if (mFlashSupported) {
             requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_OFF);
+                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
         }
     }
 
