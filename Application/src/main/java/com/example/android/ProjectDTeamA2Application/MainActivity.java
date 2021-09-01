@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -90,9 +91,12 @@ public class MainActivity extends AppCompatActivity {
                 try(InputStream inputStream0 =
                             new FileInputStream(file) ) {
                     Bitmap bitmap = toGrayscale(BitmapFactory.decodeStream(inputStream0));
+                    Matrix mat = new Matrix();
+                    mat.postRotate(90);
+                    Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
                     // 生成したbitmapをuploadする。
-                    uploadImage(bitmap);
-                    imageView1.setImageBitmap(bitmap);
+                    uploadImage(bmp);
+                    imageView1.setImageBitmap(bmp);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
