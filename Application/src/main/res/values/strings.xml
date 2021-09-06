@@ -27,4 +27,13 @@
     <string name="description_for_read_image">写真を撮影後、「撮影した写真を表示」ボタンをタップし画像を更新してください。</string>
     <string name="image_picker_error">画像データが壊れている可能性があります。再度撮影の上お試しください。</string>
     <string name="loading_ocr">OCR処理実行中…しばらくお待ちください。</string>
+    <string name="AFKwarn1">道路標識により駐（停）車を禁止する場所</string>
+    <string name="AFKwarn2">停車及び駐車を禁止する場所</string>
+    <string name="AFKwarn3">法定の駐車禁止場所</string>
+    <string name="AFKwarn4">無余地場所</string>
+    <string name="AFKwarn5">停車又は駐車の方法に従わない駐車</string>
+    <string name="AFKwarn6">時間制限駐車区間（パーキング・メーター設置区間）における駐車</string>
+    <string name="AFKwarn7">高齢運転者等専用駐車区間における駐車</string>
+    <string name="AFKsend">印刷プレビューに進む</string>
+    <string name="toAFKInput">放置態様入力画面に移動</string>
 </resources>

@@ -24,4 +24,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/show_taken_picture"/>
+    <Button
+        android:id="@+id/toAFKInput"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/toAFKInput"/>
 </LinearLayout>

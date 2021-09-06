@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -82,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
         mImageDetails.setText(R.string.description_for_read_image);
 
         setUpWriteExternalStorage();
+
+        Button toAFKInputButton = findViewById(R.id.toAFKInput);
+        toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
     }
 
     private void setUpWriteExternalStorage(){
@@ -94,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
                     Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
+
                     // 生成したbitmapをuploadする。
                     uploadImage(bmp);
                     imageView1.setImageBitmap(bmp);
