@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
+                findViewById(R.id.button_read).setVisibility(View.GONE);
             }
         });
     }
@@ -280,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void setListeners(){
+        findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
+        findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
         button1.setOnClickListener(v -> {
             // 画面遷移用のintentを作成する。基本、「Intent(前の画面, 後の画面)」で書かれる。前の画面はgetApplication();でいいんじゃないか?
             // でも、CameraActivityは実質的にはCamera2BasicFragmentを動かしている。よって、ここに戻るためには、Fragment⇒Activityを行うことになる。
@@ -288,6 +292,10 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(
                     intent,
                     REQUEST_CAPTURE_IMAGE);
+
+            findViewById(R.id.button_read).setVisibility(View.VISIBLE);
+            findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button1).setVisibility(View.GONE);
         });
     }
 
