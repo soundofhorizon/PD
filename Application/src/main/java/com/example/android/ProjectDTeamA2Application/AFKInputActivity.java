@@ -53,5 +53,100 @@ public class AFKInputActivity extends AppCompatActivity {
 
             Log.d("debug", "放置態様" + arrayList);
         });
+
+        checkBox[1].setChecked(false);
+
+        checkBox[0].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[0].isChecked();
+            if(check){
+                checkBox[1].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[5].setChecked(false);
+                checkBox[6].setChecked(false);
+
+            }
+        });
+
+        checkBox[1].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[1].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[5].setChecked(false);
+                checkBox[6].setChecked(false);
+            }
+        });
+
+        checkBox[2].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[2].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[1].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[5].setChecked(false);
+                checkBox[6].setChecked(false);
+
+            }
+        });
+
+        checkBox[3].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[3].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[1].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[5].setChecked(false);
+                checkBox[6].setChecked(false);
+
+            }
+        });
+
+        checkBox[4].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[4].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[1].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[5].setChecked(false);
+                checkBox[6].setChecked(false);
+            }
+        });
+
+        checkBox[5].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[5].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[1].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[6].setChecked(false);
+            }
+        });
+        checkBox[6].setOnClickListener( v -> {
+            // チェックステータス取得
+            boolean check = checkBox[6].isChecked();
+            if(check){
+                checkBox[0].setChecked(false);
+                checkBox[1].setChecked(false);
+                checkBox[2].setChecked(false);
+                checkBox[3].setChecked(false);
+                checkBox[4].setChecked(false);
+                checkBox[5].setChecked(false);
+            }
+        });
     }
 }
