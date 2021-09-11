@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.Json;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.vision.v1.Vision;
@@ -35,6 +36,11 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +48,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,12 +73,18 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_imageview);
+        JSONObject jsonObject = createJSON();
         findViews();
         setListeners();
+
+
+
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -87,6 +101,51 @@ public class MainActivity extends AppCompatActivity {
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
         toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
     }
+
+    private JSONObject createJSON() {
+        //空のJSONの作成
+        JSONObject jsonObject = new JSONObject();
+
+
+        try {
+            jsonObject.put("int", "30");
+            jsonObject.put("string", "文字列");
+
+            // 文字列に変換してログ出力
+            String strObj =jsonObject.toString();
+            Log.d("sample","JSONObject:"+strObj);
+
+            // toStringの展開
+            JSONObject a = new JSONObject(strObj);
+            Log.d("sample","toStringでの展開:"+a.toString());
+
+            // 中に含まれるデータの取得
+            int i = jsonObject.getInt("int");
+            Log.d("sample","intの取得:"+i);
+
+            // データの削除
+            jsonObject.remove("string");
+            strObj = jsonObject.toString();
+            Log.d("sample","削除:"+strObj);
+
+            jsonObject.remove("int");
+            strObj = jsonObject.toString();
+            Log.d("sample","削除:"+strObj);
+
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+
+    }
+
+
+
+
+
+
+
 
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
