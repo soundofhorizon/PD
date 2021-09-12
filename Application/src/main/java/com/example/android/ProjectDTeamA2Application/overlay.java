@@ -35,7 +35,7 @@ public class overlay extends View {
 
 
         //center
-        canvas.drawRect(display.getWidth()/2 -500, display.getHeight()/2 -250 - dp2px(112, this.getContext()), 500 + display.getWidth() / 2, display.getHeight()/2 + 250 - dp2px(112, this.getContext()), paint);
+        canvas.drawRect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160 , paint);
 
     }
 
