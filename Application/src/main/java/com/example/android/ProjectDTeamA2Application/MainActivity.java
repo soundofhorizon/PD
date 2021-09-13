@@ -1,20 +1,27 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -42,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,14 +100,27 @@ public class MainActivity extends AppCompatActivity {
         Button buttonRead = findViewById(R.id.button_read);
         buttonRead.setOnClickListener( v -> {
             if(isExternalStorageReadable()){
+                //tograyscaleが宣言されている時点でカラーbitmapになっているのでbitmapの取得が終了しているのでそこの変数の中には2値化されたbitmap情報が入っている
                 try(InputStream inputStream0 =
                             new FileInputStream(file) ) {
                     Bitmap bitmap = toGrayscale(BitmapFactory.decodeStream(inputStream0));
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
+                    //撮影した画像がグレースケールで抽出
                     Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
+                    //ここから切り出す
+                    try{
+                        WindowManager wm = (WindowManager)this.getBaseContext().getSystemService(Context.WINDOW_SERVICE);
+                        Display display = Objects.requireNonNull(wm).getDefaultDisplay();
+                        @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
+                        display.getMetrics(displayMetrics);
 
-                    // 生成したbitmapをuploadする。
+                        BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
+                        Rect rect = new Rect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160);
+                        bmp = toGrayscale(regionDecoder.decodeRegion(rect, null));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     uploadImage(bmp);
                     imageView1.setImageBitmap(bmp);
                 } catch (IOException e) {
