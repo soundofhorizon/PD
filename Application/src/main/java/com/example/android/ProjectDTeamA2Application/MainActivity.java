@@ -49,6 +49,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -103,43 +104,18 @@ public class MainActivity extends AppCompatActivity {
     private void createJSONFromMap() {
         Map<String , String> map = new HashMap<>();
 
-        map.put("Name","value1");
-        map.put("Data","value2");
-
-        for(Map.Entry<String, String> entry : map.entrySet()){
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-        }
-
+        addDataToJson(map);
+        Log.d("JSON", "追加: " + map.toString());
         JSONObject jsonObject = new JSONObject(map);
-        Log.d("JSON", "作成: " + jsonObject.toString());
-        saveJSONObject(jsonObject, "data.json");
-        Log.d("JSON", "保存: " + jsonObject.toString());
-        loadJSONObject(jsonObject,"data.json");
-        Log.d("JSON", "読み込み: " + jsonObject.toString());
-
+        Log.d("JSON", "JSON化: " + jsonObject.toString());
     }
 
-    private void saveJSONObject(JSONObject jsonObject, String s)  {
-        try {
-            jsonObject.accumulate("Title","1");
-            jsonObject.accumulate("Title","2");
-            jsonObject.accumulate("Name","value3");
-            jsonObject.accumulate("Data","value4");
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void addDataToJson(Map<String,String>addData)  {
+        for (int i = 0; i <= addData.size(); i ++) {
+            addData.put("key","value");
         }
     }
 
-    private void loadJSONObject(JSONObject jsonObject, String s) {
-        try {
-            String Name =jsonObject.getString("Name");
-            System.out.println(Name);
-            String Data =jsonObject.getString("Data");
-            System.out.println(Data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
