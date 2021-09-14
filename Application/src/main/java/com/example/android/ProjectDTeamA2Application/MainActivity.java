@@ -106,6 +106,10 @@ public class MainActivity extends AppCompatActivity {
         map.put("Name","value1");
         map.put("Data","value2");
 
+        for(Map.Entry<String, String> entry : map.entrySet()){
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
+
         JSONObject jsonObject = new JSONObject(map);
         Log.d("JSON", "作成: " + jsonObject.toString());
         saveJSONObject(jsonObject, "data.json");
