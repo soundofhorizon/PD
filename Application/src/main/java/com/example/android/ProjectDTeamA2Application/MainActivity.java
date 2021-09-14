@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.Json;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.vision.v1.Vision;
@@ -48,7 +47,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -79,12 +79,10 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_imageview);
-        JSONObject jsonObject = createJSON();
         findViews();
         setListeners();
 
-
-
+        createJSONFromMap();
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -102,50 +100,42 @@ public class MainActivity extends AppCompatActivity {
         toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
     }
 
-    private JSONObject createJSON() {
-        //空のJSONの作成
-        JSONObject jsonObject = new JSONObject();
+    private void createJSONFromMap() {
+        Map<String , String> map = new HashMap<>();
 
+        map.put("Name","value1");
+        map.put("Data","value2");
 
-        try {
-            jsonObject.put("int", "30");
-            jsonObject.put("string", "文字列");
-
-            // 文字列に変換してログ出力
-            String strObj =jsonObject.toString();
-            Log.d("sample","JSONObject:"+strObj);
-
-            // toStringの展開
-            JSONObject a = new JSONObject(strObj);
-            Log.d("sample","toStringでの展開:"+a.toString());
-
-            // 中に含まれるデータの取得
-            int i = jsonObject.getInt("int");
-            Log.d("sample","intの取得:"+i);
-
-            // データの削除
-            jsonObject.remove("string");
-            strObj = jsonObject.toString();
-            Log.d("sample","削除:"+strObj);
-
-            jsonObject.remove("int");
-            strObj = jsonObject.toString();
-            Log.d("sample","削除:"+strObj);
-
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
+        JSONObject jsonObject = new JSONObject(map);
+        Log.d("JSON", "作成: " + jsonObject.toString());
+        saveJSONObject(jsonObject, "data.json");
+        Log.d("JSON", "保存: " + jsonObject.toString());
+        loadJSONObject(jsonObject,"data.json");
+        Log.d("JSON", "読み込み: " + jsonObject.toString());
 
     }
 
+    private void saveJSONObject(JSONObject jsonObject, String s)  {
+        try {
+            jsonObject.accumulate("Title","1");
+            jsonObject.accumulate("Title","2");
+            jsonObject.accumulate("Name","value3");
+            jsonObject.accumulate("Data","value4");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-
-
-
-
-
+    private void loadJSONObject(JSONObject jsonObject, String s) {
+        try {
+            String Name =jsonObject.getString("Name");
+            System.out.println(Name);
+            String Data =jsonObject.getString("Data");
+            System.out.println(Data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
