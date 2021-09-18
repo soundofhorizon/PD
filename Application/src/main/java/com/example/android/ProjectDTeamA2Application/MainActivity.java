@@ -35,13 +35,18 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,14 +73,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_imageview);
         findViews();
         setListeners();
+        process();
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
-        Log.d("log","path: " + file);
 
         // text_view： activity_main.xml の TextView の id
         TextView mImageDetails = findViewById(R.id.text_view);
@@ -88,13 +94,59 @@ public class MainActivity extends AppCompatActivity {
         toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
     }
 
+    private void process(){
+        // Mapのデータを作成する処理
+        Map<String, String> map = createMap();
+
+        // Mapのデータ（引数にして）をＪＳＯＮ形式に変換してＪＳＯＮファイルに書き込む処理
+        convertMapToJson(map);
+    }
+
+    private Map<String, String> createMap(){
+
+        Map<String , String> map = new HashMap<>();
+        // たとえば，GPS, 住所，氏名とか・・
+        addDataToMap(map);
+        Log.d("debug", map.toString());
+        return map;
+    }
+
+
+    private void convertMapToJson(Map<String , String> map) {
+        // MapをJsonObjectに変換
+        JSONObject jsonObject = new JSONObject(map);
+
+        // JsonObjectをＪｓｏｎファイルに書き込み
+        Context context = getApplicationContext();
+        String fileName = "data.json";
+        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        String inputText = jsonObject.toString();
+
+        try (FileWriter writer = new FileWriter(file)){
+            writer.write(inputText);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addDataToMap(Map<String, String> addData)  {
+        try {
+            addData.put("Name","value2");
+            addData.put("Data","value1");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
         buttonRead.setOnClickListener( v -> {
             if(isExternalStorageReadable()){
                 try(InputStream inputStream0 =
                             new FileInputStream(file) ) {
-                    Bitmap bitmap = toGrayscale(BitmapFactory.decodeStream(inputStream0));
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
                     Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
