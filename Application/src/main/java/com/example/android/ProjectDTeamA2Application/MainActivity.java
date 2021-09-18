@@ -1,20 +1,26 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,6 +53,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -151,7 +158,19 @@ public class MainActivity extends AppCompatActivity {
                     mat.postRotate(90);
                     Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
 
-                    // 生成したbitmapをuploadする。
+                    //ここから切り出す
+                    try{
+                        WindowManager wm = (WindowManager)this.getBaseContext().getSystemService(Context.WINDOW_SERVICE);
+                        Display display = Objects.requireNonNull(wm).getDefaultDisplay();
+                        @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
+                        display.getMetrics(displayMetrics);
+
+                        BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
+                        Rect rect = new Rect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160);
+                        bmp = toGrayscale(regionDecoder.decodeRegion(rect, null));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     uploadImage(bmp);
                     imageView1.setImageBitmap(bmp);
                 } catch (IOException e) {
