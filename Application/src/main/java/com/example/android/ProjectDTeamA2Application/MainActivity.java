@@ -29,6 +29,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -87,8 +90,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_imageview);
         findViews();
         setListeners();
-        process();
+        createJson();
         checkPermission();
+
+        //これはテスト
+        Map<String , String> map = new HashMap<>();
+        map.put("testData_key","testData_data");
+        try {
+            addDataToJson(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // データ2つ目の書き込みテスト
+        map.put("testData_key_2","testData_data_2");
+        try {
+            addDataToJson(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -114,51 +134,67 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void process(){
-        // Mapのデータを作成する処理
-        Map<String, String> map = createMap();
-
-        // Mapのデータ（引数にして）をＪＳＯＮ形式に変換してＪＳＯＮファイルに書き込む処理
-        convertMapToJson(map);
-    }
-
-    private Map<String, String> createMap(){
-
+    // この関数は、Jsonの初期化を行うための物である。
+    private void createJson(){
+        // 空HashMapの作成
         Map<String , String> map = new HashMap<>();
-        // たとえば，GPS, 住所，氏名とか・・
-        addDataToMap(map);
-        Log.d("debug", map.toString());
-        return map;
-    }
+        ObjectMapper mapper = new ObjectMapper();
 
-
-    private void convertMapToJson(Map<String , String> map) {
-        // MapをJsonObjectに変換
-        JSONObject jsonObject = new JSONObject(map);
-
-        // JsonObjectをＪｓｏｎファイルに書き込み
+        String json = null;
+        try {
+            // mapをjson文字列に変換
+            json = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
         Context context = getApplicationContext();
         String fileName = "data.json";
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
-        String inputText = jsonObject.toString();
-
         try (FileWriter writer = new FileWriter(file)){
-            writer.write(inputText);
+            writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Log.d("debug", json);
     }
 
-    private void addDataToMap(Map<String, String> addData)  {
-        try {
-            addData.put("Name","value2");
-            addData.put("Data","value1");
 
+    private void  addDataToJson(Map<String, String> addData) throws IOException {
+        // data.jsonの中身をJsonNode.toString()で全部書きだす。
+        Context context = getApplicationContext();
+        String fileName = "data.json";
+        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(file);
+
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            // キーがString、値がObjectのマップに読み込みます。
+            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
         } catch (Exception e) {
+            // エラー
             e.printStackTrace();
         }
-    }
 
+        // addDataのMapに入っているkeyとvalueで上書き
+        map.putAll(addData);
+
+        String json = null;
+        try {
+            // mapをjson文字列に変換
+            json = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        try (FileWriter writer = new FileWriter(file)){
+            writer.write(Objects.requireNonNull(json));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.d("debug_addDatatoJson", json);
+    }
 
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
