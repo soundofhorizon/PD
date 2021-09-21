@@ -1,8 +1,10 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
@@ -15,6 +17,7 @@ import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         findViews();
         setListeners();
         process();
+        checkPermission();
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -99,6 +103,15 @@ public class MainActivity extends AppCompatActivity {
 
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
         toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
+    }
+
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // パーミッションの許可を取得する
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+        }
     }
 
     private void process(){

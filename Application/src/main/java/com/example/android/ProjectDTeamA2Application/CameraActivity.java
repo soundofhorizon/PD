@@ -78,18 +78,13 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         bestProvider = mLocationManager.getBestProvider(criteria, true);
     }
 
-    private void checkPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // パーミッションの許可を取得する
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-        }
-    }
 
     private void locationStart() {
-        checkPermission();
-        mLocationManager.requestLocationUpdates(bestProvider, 10000, 3, this);
+        try {
+            mLocationManager.requestLocationUpdates(bestProvider, 10000, 3, this);
+        }catch(SecurityException e){
+            Log.d("Debug", "Location Security Alert");
+        }
     }
 
     private void locationStop() {
