@@ -14,6 +14,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -56,7 +57,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
     private static final int MAX_LABEL_RESULTS = 1;
 
+    private static String carNumber ="nothing";
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -92,23 +97,6 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         createJson();
         checkPermission();
-
-        //これはテスト
-        Map<String , String> map = new HashMap<>();
-        map.put("testData_key","testData_data");
-        try {
-            addDataToJson(map);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // データ2つ目の書き込みテスト
-        map.put("testData_key_2","testData_data_2");
-        try {
-            addDataToJson(map);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -122,7 +110,16 @@ public class MainActivity extends AppCompatActivity {
         setUpWriteExternalStorage();
 
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
-        toAFKInputButton.setOnClickListener((View v) -> startActivity(new Intent(this, AFKInputActivity.class)));
+        toAFKInputButton.setOnClickListener( v -> {
+            startActivity(new Intent(this, AFKInputActivity.class));
+            Map<String , String> map = new HashMap<>();
+            map.put("carNumber", carNumber);
+            try {
+                addDataToJson(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } );
     }
 
     private void checkPermission() {
@@ -160,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void  addDataToJson(Map<String, String> addData) throws IOException {
+    void  addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -217,6 +214,18 @@ public class MainActivity extends AppCompatActivity {
                         BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
                         Rect rect = new Rect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160);
                         bmp = toGrayscale(regionDecoder.decodeRegion(rect, null));
+                        ByteBuffer byteBuffer = ByteBuffer.allocate(bitmap.getByteCount());
+                        bitmap.copyPixelsToBuffer(byteBuffer);
+                        byte[] bmparr = byteBuffer.array();
+
+                        Map<String , String> map = new HashMap<>();
+                        map.put("IMAGE_bytea", Arrays.toString(bmparr));
+                        try {
+                            addDataToJson(map);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -362,6 +371,7 @@ public class MainActivity extends AppCompatActivity {
         TextAnnotation label = response.getResponses().get(0).getFullTextAnnotation();
         if (label != null) {
             message.append(label.getText());
+            carNumber = label.getText();
         } else {
             message.append("nothing");
         }
@@ -402,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void setListeners(){
+
         findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
         findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
         button1.setOnClickListener(v -> {

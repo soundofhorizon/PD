@@ -1,15 +1,65 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class AFKInputActivity extends AppCompatActivity {
     private final CheckBox[] checkBox = new CheckBox[7];
+
+    void  addDataToJson(Map<String, String> addData) throws IOException {
+        // data.jsonの中身をJsonNode.toString()で全部書きだす。
+        Context context = getApplicationContext();
+        String fileName = "data.json";
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(file);
+
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            // キーがString、値がObjectのマップに読み込みます。
+            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+
+        // addDataのMapに入っているkeyとvalueで上書き
+        map.putAll(addData);
+
+        String json = null;
+        try {
+            // mapをjson文字列に変換
+            json = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        try (FileWriter writer = new FileWriter(file)){
+            writer.write(Objects.requireNonNull(json));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("debug_addDatatoJson", json);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +73,7 @@ public class AFKInputActivity extends AppCompatActivity {
         checkBox[4] = findViewById(R.id.checkBox5);
         checkBox[5] = findViewById(R.id.checkBox6);
         checkBox[6] = findViewById(R.id.checkBox7);
+
 
 
         ArrayList<String> arrayList = new ArrayList<>();
@@ -50,8 +101,14 @@ public class AFKInputActivity extends AppCompatActivity {
                 arrayList.add("高齢運転者等専用駐車区間における駐車");
             }
 
-
             Log.d("debug", "放置態様" + arrayList);
+            Map<String , String> map = new HashMap<>();
+            map.put("afk_mode",String.valueOf(arrayList.get(0)));
+            try {
+                addDataToJson(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         checkBox[1].setChecked(false);
@@ -148,5 +205,10 @@ public class AFKInputActivity extends AppCompatActivity {
                 checkBox[5].setChecked(false);
             }
         });
+
     }
+
+
 }
+
+

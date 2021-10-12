@@ -17,22 +17,76 @@
 package com.example.android.ProjectDTeamA2Application;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class CameraActivity extends AppCompatActivity implements LocationListener {
 
     private LocationManager mLocationManager;
     private String bestProvider;
+
+    void  addDataToJson(Map<String, String> addData) throws IOException {
+        // data.jsonの中身をJsonNode.toString()で全部書きだす。
+        Context context = getApplicationContext();
+        String fileName = "data.json";
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(file);
+
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            // キーがString、値がObjectのマップに読み込みます。
+            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+
+        // addDataのMapに入っているkeyとvalueで上書き
+        map.putAll(addData);
+
+        String json = null;
+        try {
+            // mapをjson文字列に変換
+            json = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        try (FileWriter writer = new FileWriter(file)){
+            writer.write(Objects.requireNonNull(json));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("debug_addDatatoJson", json);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +111,6 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
     @Override
     protected void onStop() {
         super.onStop();
-
         locationStop();
     }
 
@@ -91,12 +144,33 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         mLocationManager.removeUpdates(this);
     }
 
+
     @Override
     public void onLocationChanged(Location location) {
+
         Log.d("DEBUG", "called onLocationChanged");
         Log.d("DEBUG", "lat : " + location.getLatitude());
         Log.d("DEBUG", "lon : " + location.getLongitude());
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        Log.d("timestamp", String.valueOf(timestamp));
+
+        Map<String , String> map = new HashMap<>();
+        map.put("Latitude", String.valueOf(location.getLatitude()));
+        map.put("Longitude", String.valueOf(location.getLongitude()));
+        map.put("timestamp", String.valueOf(timestamp));
+        try {
+            addDataToJson(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //visible
+        findViewById(R.id.picture).setVisibility(View.VISIBLE);
+        
     }
+
+
+
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
