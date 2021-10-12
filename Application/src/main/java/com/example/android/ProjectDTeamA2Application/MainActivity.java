@@ -1,7 +1,6 @@
 package com.example.android.ProjectDTeamA2Application;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
@@ -21,9 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,8 +44,6 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.TextAnnotation;
-
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -94,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
 
         //これはテスト
-        Map<String , String> map = new HashMap<>();
-        map.put("testData_key","testData_data");
+        Map<String, String> map = new HashMap<>();
+        map.put("testData_key", "testData_data");
         try {
             addDataToJson(map);
         } catch (IOException e) {
@@ -103,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // データ2つ目の書き込みテスト
-        map.put("testData_key_2","testData_data_2");
+        map.put("testData_key_2", "testData_data_2");
         try {
             addDataToJson(map);
         } catch (IOException e) {
@@ -135,9 +131,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // この関数は、Jsonの初期化を行うための物である。
-    private void createJson(){
+    private void createJson() {
         // 空HashMapの作成
-        Map<String , String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         String json = null;
@@ -151,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         String fileName = "data.json";
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -160,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void  addDataToJson(Map<String, String> addData) throws IOException {
+    private void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -171,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -188,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             // エラー
             e.printStackTrace();
         }
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -196,32 +193,50 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug_addDatatoJson", json);
     }
 
-    private void setUpWriteExternalStorage(){
+    public float px2dp(int px, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return px / metrics.density;
+    }
+
+    private void setUpWriteExternalStorage() {
+        Context context = getApplicationContext();
         Button buttonRead = findViewById(R.id.button_read);
-        buttonRead.setOnClickListener( v -> {
-            if(isExternalStorageReadable()){
-                try(InputStream inputStream0 =
-                            new FileInputStream(file) ) {
+        buttonRead.setOnClickListener(v -> {
+            if (isExternalStorageReadable()) {
+                try (InputStream inputStream0 = new FileInputStream(file)) {
+                    BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
-                    Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
+                    int bmp_Lwidth = (int) (bitmap.getWidth() * 0.3);
+                    int bmp_Rwidth = (int) (bitmap.getWidth() * 0.4);
+                    int bmp_Height = (int) (bitmap.getHeight() * 0.03);
+                    int bmp_Bottom = (int) (bitmap.getHeight() * 0.03);
 
-                    //ここから切り出す
-                    try{
-                        WindowManager wm = (WindowManager)this.getBaseContext().getSystemService(Context.WINDOW_SERVICE);
-                        Display display = Objects.requireNonNull(wm).getDefaultDisplay();
-                        @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
-                        display.getMetrics(displayMetrics);
+                    Rect rect = new Rect(bmp_Lwidth, bmp_Height, bitmap.getWidth()-bmp_Rwidth, bitmap.getHeight()-bmp_Bottom);
 
-                        BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
-                        Rect rect = new Rect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160);
-                        bmp = toGrayscale(regionDecoder.decodeRegion(rect, null));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    Bitmap bmp = toGrayscale(regionDecoder.decodeRegion(rect,null));
+                    bmp = Bitmap.createBitmap(bmp,0,0,bmp.getWidth(),bmp.getHeight(),mat,true);
+
+                    Rect srcRect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
+                    Rect destRect1 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
+                    Rect destRect2 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
+                    destRect1.offset(0,imageView1.getHeight()/2);
+                    destRect2.offset(destRect1.width(),imageView1.getHeight()/2);
+
+                    Bitmap cvs = Bitmap.createBitmap(imageView1.getWidth(),imageView1.getHeight(), Bitmap.Config.ARGB_4444);
+                    Canvas canvas = new Canvas(cvs);
+                    Paint paint = new Paint();
+                    paint.setColor(Color.GREEN);
+                    paint.setStyle(Paint.Style.FILL);
+
+                    canvas.drawBitmap(bmp,srcRect,destRect1,null);
+                    canvas.drawBitmap(bmp,srcRect,destRect2,null);
+                    canvas.drawRect(0,imageView1.getHeight()/2+200,imageView1.getWidth()/2,imageView1.getHeight(),paint);
+                    canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2+200,paint);
+
                     uploadImage(bmp);
-                    imageView1.setImageBitmap(bmp);
+                    imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -231,8 +246,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void uploadImage(Bitmap bitmap){
-        if (bitmap!= null) {
+    public void uploadImage(Bitmap bitmap) {
+        if (bitmap != null) {
             // OCR処理実行中であることを伝える。
             TextView description = findViewById(R.id.text_view);
             description.setText(R.string.loading_ocr);
@@ -396,12 +411,12 @@ public class MainActivity extends AppCompatActivity {
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
     }
 
-    protected void findViews(){
+    protected void findViews() {
         button1 = findViewById(R.id.button1);
         imageView1 = findViewById(R.id.imageView1);
     }
 
-    protected void setListeners(){
+    protected void setListeners() {
         findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
         findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
         button1.setOnClickListener(v -> {
@@ -419,8 +434,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public Bitmap toGrayscale(Bitmap bmpOriginal)
-    {
+    public Bitmap toGrayscale(Bitmap bmpOriginal) {
         int width, height;
         height = bmpOriginal.getHeight();
         width = bmpOriginal.getWidth();

@@ -16,7 +16,8 @@ import java.util.Objects;
 
 public class overlay extends View {
     private Paint paint = new Paint();
-    overlay(Context context) {
+    overlay(Context context)
+    {
         super(context);
     }
 
