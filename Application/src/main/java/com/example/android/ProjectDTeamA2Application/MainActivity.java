@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawRect(0,imageView1.getHeight()/2+200,imageView1.getWidth()/2,imageView1.getHeight(),paint);
                     canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2+200,paint);
 
-                    uploadImage(bmp);
+                    uploadImage(cvs);
                     imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
