@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -88,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         createJson();
         checkPermission();
+     //   PrintPreview.copyFile();
+
 
         //これはテスト
         Map<String, String> map = new HashMap<>();
@@ -193,11 +194,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug_addDatatoJson", json);
     }
 
-    public float px2dp(int px, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return px / metrics.density;
-    }
-
     private void setUpWriteExternalStorage() {
         Context context = getApplicationContext();
         Button buttonRead = findViewById(R.id.button_read);
@@ -221,8 +217,9 @@ public class MainActivity extends AppCompatActivity {
                     Rect srcRect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
                     Rect destRect1 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
                     Rect destRect2 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
+
                     destRect1.offset(0,imageView1.getHeight()/2);
-                    destRect2.offset(destRect1.width(),imageView1.getHeight()/2);
+                    destRect2.offset(destRect1.width(),imageView1.getHeight()/3);
 
                     Bitmap cvs = Bitmap.createBitmap(imageView1.getWidth(),imageView1.getHeight(), Bitmap.Config.ARGB_4444);
                     Canvas canvas = new Canvas(cvs);
@@ -233,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawBitmap(bmp,srcRect,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect,destRect2,null);
                     canvas.drawRect(0,imageView1.getHeight()/2+200,imageView1.getWidth()/2,imageView1.getHeight(),paint);
-                    canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2+200,paint);
+                    canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2,paint);
 
                     uploadImage(cvs);
                     imageView1.setImageBitmap(cvs);
