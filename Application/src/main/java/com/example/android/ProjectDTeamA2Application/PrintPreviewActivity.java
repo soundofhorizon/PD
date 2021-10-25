@@ -34,14 +34,14 @@ public class PrintPreviewActivity extends MainActivity{
     }
     private void copyFile(){
         Context context = getApplicationContext();
-        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),"seal.bmp");
+        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),"seal.jpg");
         Resources r = getResources();
         Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
         imageView1.setImageBitmap(bmp);
         try{
             FileOutputStream fos = null;
             fos = new FileOutputStream(file);
-            // 保存(JPEGで保存している。bitmapに直すときはここを参照せよ: https://qiita.com/aymikmts/items/7139fa6c4da3b57cb4fc)
+            // 保存(JPGで保存している。bitmapに直すときはここを参照せよ: https://qiita.com/aymikmts/items/7139fa6c4da3b57cb4fc)
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             // 保存終了
             fos.close();
