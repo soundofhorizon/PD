@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
@@ -111,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
 
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
         toAFKInputButton.setOnClickListener( v -> {
-            startActivity(new Intent(this, AFKInputActivity.class));
             Map<String , String> map = new HashMap<>();
             map.put("carNumber", carNumber);
             try {
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            startActivity(new Intent(this, AFKInputActivity.class));
         } );
     }
 
@@ -197,40 +198,41 @@ public class MainActivity extends AppCompatActivity {
         Button buttonRead = findViewById(R.id.button_read);
         buttonRead.setOnClickListener( v -> {
             if(isExternalStorageReadable()){
-                try(InputStream inputStream0 =
-                            new FileInputStream(file) ) {
+                try(InputStream inputStream0 = new FileInputStream(file)) {
+                    BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
+                    // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
-                    Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
 
-                    //ここから切り出す
-                    try{
-                        WindowManager wm = (WindowManager)this.getBaseContext().getSystemService(Context.WINDOW_SERVICE);
-                        Display display = Objects.requireNonNull(wm).getDefaultDisplay();
-                        @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
-                        display.getMetrics(displayMetrics);
+                    int bmp_Lwidth = (int) (bitmap.getWidth() * 0.3);
+                    int bmp_Rwidth = (int) (bitmap.getWidth() * 0.4);
+                    int bmp_Height = (int) (bitmap.getHeight() * 0.03);
+                    int bmp_Bottom = (int) (bitmap.getHeight() * 0.03);
 
-                        BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
-                        Rect rect = new Rect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160);
-                        bmp = toGrayscale(regionDecoder.decodeRegion(rect, null));
-                        ByteBuffer byteBuffer = ByteBuffer.allocate(bitmap.getByteCount());
-                        bitmap.copyPixelsToBuffer(byteBuffer);
-                        byte[] bmparr = byteBuffer.array();
+                    Rect rect = new Rect(bmp_Lwidth, bmp_Height, bitmap.getWidth()-bmp_Rwidth, bitmap.getHeight()-bmp_Bottom);
 
-                        Map<String , String> map = new HashMap<>();
-                        map.put("IMAGE_bytea", Arrays.toString(bmparr));
-                        try {
-                            addDataToJson(map);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    Bitmap bmp = toGrayscale(regionDecoder.decodeRegion(rect,null));
+                    bmp = Bitmap.createBitmap(bmp,0,0,bmp.getWidth(),bmp.getHeight(),mat,true);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    uploadImage(bmp);
-                    imageView1.setImageBitmap(bmp);
+                    Rect srcRect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
+                    Rect destRect1 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
+                    Rect destRect2 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
+                    destRect1.offset(0,imageView1.getHeight()/2);
+                    destRect2.offset(destRect1.width(),imageView1.getHeight()/3);
+
+                    Bitmap cvs = Bitmap.createBitmap(imageView1.getWidth(),imageView1.getHeight(), Bitmap.Config.ARGB_4444);
+                    Canvas canvas = new Canvas(cvs);
+                    Paint paint = new Paint();
+                    paint.setColor(Color.GREEN);
+                    paint.setStyle(Paint.Style.FILL);
+
+                    canvas.drawBitmap(bmp,srcRect,destRect1,null);
+                    canvas.drawBitmap(bmp,srcRect,destRect2,null);
+                    canvas.drawRect(0,imageView1.getHeight()/2+200,imageView1.getWidth()/2,imageView1.getHeight(),paint);
+                    canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2,paint);
+                    uploadImage(cvs);
+                    imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

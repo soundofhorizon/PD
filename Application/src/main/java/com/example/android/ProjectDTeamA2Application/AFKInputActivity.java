@@ -1,6 +1,7 @@
 package com.example.android.ProjectDTeamA2Application;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -109,6 +110,7 @@ public class AFKInputActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            startActivity(new Intent(this, PrintPreviewActivity.class));
         });
 
         checkBox[1].setChecked(false);
@@ -205,6 +207,7 @@ public class AFKInputActivity extends AppCompatActivity {
                 checkBox[5].setChecked(false);
             }
         });
+
 
     }
 

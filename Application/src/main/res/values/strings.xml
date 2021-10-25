@@ -36,4 +36,6 @@
     <string name="AFKwarn7">高齢運転者等専用駐車区間における駐車</string>
     <string name="AFKsend">印刷プレビューに進む</string>
     <string name="toAFKInput">放置態様入力画面に移動</string>
+    <string name="printPDF">PDFを発行する</string>
+    <string name="description_for_create_pdf">上記標章画像に問題が無ければ、下にある[PDFを発行する]ボタンを押してください。</string>
 </resources>
