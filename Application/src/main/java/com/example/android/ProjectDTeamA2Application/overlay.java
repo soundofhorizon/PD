@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -20,6 +21,7 @@ public class overlay extends View {
         super(context);
     }
 
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) { // Override the onDraw() Method
         super.onDraw(canvas);
@@ -27,6 +29,12 @@ public class overlay extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(10);
+
+        @SuppressLint("DrawAllocation") Paint mDotPaint = new Paint();
+        mDotPaint.setPathEffect(new DashPathEffect(new float[]{ 5.0f, 5.0f }, 0)); // 5pixel描いたら5pixel描かないを繰り返す
+        mDotPaint.setStyle(Paint.Style.STROKE); // スタイルは線(Stroke)を指定する
+        mDotPaint.setStrokeWidth(10); // 線の太さ
+        mDotPaint.setColor(Color.GREEN); // 線の色
 
         WindowManager wm = (WindowManager)this.getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = Objects.requireNonNull(wm).getDefaultDisplay();
@@ -36,7 +44,7 @@ public class overlay extends View {
 
         //center
         canvas.drawRect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160 , paint);
-
+        canvas.drawLine(display.getWidth()/2 -500,display.getHeight()/2-120,450 + display.getWidth() / 2,display.getHeight()/2-120,mDotPaint);
     }
 
     public int dp2px(float dp,Context context){

@@ -24,9 +24,9 @@
     <string name="number_plate">ナンバープレートを取る</string>
     <string name="go_back">GO BACK</string>
     <string name="show_taken_picture">撮影した写真を表示</string>
-    <string name="description_for_read_image">写真を撮影後、「撮影した写真を表示」ボタンをタップし画像を更新してください。</string>
+    <string name="description_for_read_image">写真を撮影後、「撮影した写真を表示」ボタンをタップし、写真を表示させてください。</string>
     <string name="image_picker_error">画像データが壊れている可能性があります。再度撮影の上お試しください。</string>
-    <string name="loading_ocr">OCR処理実行中…しばらくお待ちください。</string>
+    <string name="loading_ocr">画像読み込み処理実行中…ボタン操作をしないでください。</string>
     <string name="AFKwarn1">道路標識により駐（停）車を禁止する場所</string>
     <string name="AFKwarn2">停車及び駐車を禁止する場所</string>
     <string name="AFKwarn3">法定の駐車禁止場所</string>

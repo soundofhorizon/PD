@@ -194,50 +194,47 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug_addDatatoJson", json);
     }
 
+
+
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
         buttonRead.setOnClickListener( v -> {
             if(isExternalStorageReadable()){
                 try(InputStream inputStream0 = new FileInputStream(file)) {
-                    BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(file.toString(), false);
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
 
-                    int bmp_Lwidth = (int) (bitmap.getWidth() * 0.3);
-                    int bmp_Rwidth = (int) (bitmap.getWidth() * 0.4);
-                    int bmp_Height = (int) (bitmap.getHeight() * 0.03);
-                    int bmp_Bottom = (int) (bitmap.getHeight() * 0.03);
+                    WindowManager wm = (WindowManager)this.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                    Display display = Objects.requireNonNull(wm).getDefaultDisplay();
+                    @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
+                    display.getMetrics(displayMetrics);
+                    // rotate 90 degree and attach gray scale
+                    Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),mat,true));
+                    // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
+                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate,(int)(bmp_rotate.getWidth()/2-(500*((double)bmp_rotate.getWidth()/(double)display.getWidth()))), display.getHeight()/2 -470, (int)(950*((double)bmp_rotate.getWidth()/(double) display.getWidth())), 490, null, true);
 
-                    Rect rect = new Rect(bmp_Lwidth, bmp_Height, bitmap.getWidth()-bmp_Rwidth, bitmap.getHeight()-bmp_Bottom);
-
-                    Bitmap bmp = toGrayscale(regionDecoder.decodeRegion(rect,null));
-                    bmp = Bitmap.createBitmap(bmp,0,0,bmp.getWidth(),bmp.getHeight(),mat,true);
-
-                    Rect srcRect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-                    Rect destRect1 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
-                    Rect destRect2 = new Rect(0,0,imageView1.getWidth()/2,imageView1.getHeight()/2);
-                    destRect1.offset(0,imageView1.getHeight()/2);
-                    destRect2.offset(destRect1.width(),imageView1.getHeight()/3);
+                    Rect srcRect1 = new Rect(0,0,bmp.getWidth(),bmp.getHeight()/2);
+                    Rect srcRect2 = new Rect(0, bmp.getHeight()/2, bmp.getWidth(), bmp.getHeight());
+                    // 拡縮を揃えることを考えれば、width 1/2なら、heightも1/2だろう？
+                    Rect destRect1 = new Rect(0,0,bmp.getWidth()/2,bmp.getHeight()/2);
+                    Rect destRect2 = new Rect(0,0,bmp.getWidth()/2,bmp.getHeight()/2);
+                    // offsetは見やすいようにしているが、正直OCR的にはどうなんだろうか。要検証。また、それを言うならHeightは0でいい。canvasとは別に、matを適用した時点のbitmapを表示させればユーザーは満足するだろう。
+                    destRect1.offset(display.getWidth()/10,imageView1.getHeight()/2);
+                    destRect2.offset(display.getWidth()/10+srcRect1.width()/2,imageView1.getHeight()/2);
 
                     Bitmap cvs = Bitmap.createBitmap(imageView1.getWidth(),imageView1.getHeight(), Bitmap.Config.ARGB_4444);
                     Canvas canvas = new Canvas(cvs);
-                    Paint paint = new Paint();
-                    paint.setColor(Color.GREEN);
-                    paint.setStyle(Paint.Style.FILL);
-
-                    canvas.drawBitmap(bmp,srcRect,destRect1,null);
-                    canvas.drawBitmap(bmp,srcRect,destRect2,null);
-                    canvas.drawRect(0,imageView1.getHeight()/2+200,imageView1.getWidth()/2,imageView1.getHeight(),paint);
-                    canvas.drawRect(imageView1.getWidth()/2,0,imageView1.getWidth(),imageView1.getHeight()/2,paint);
+                    canvas.drawBitmap(bmp,srcRect1,destRect1,null);
+                    canvas.drawBitmap(bmp,srcRect2,destRect2,null);
                     uploadImage(cvs);
                     imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_read).setVisibility(View.GONE);
+                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
             }
         });
     }
@@ -379,26 +376,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return message.toString();
-    }
-
-    private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
     /* Checks if external storage is available to at least read */
