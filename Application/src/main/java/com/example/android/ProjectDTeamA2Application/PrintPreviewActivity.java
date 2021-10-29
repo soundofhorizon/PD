@@ -8,9 +8,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -20,23 +22,30 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class PrintPreviewActivity extends AppCompatActivity {
-    File file;
     ImageView imageView;
-    ImageView imageView1 ;
 
     String time;
     String area;
     String area2;
     String status;
+    Bitmap bitmap;
 
     void  addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
@@ -71,13 +80,10 @@ public class PrintPreviewActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("debug_addDatatoJson", "取得状態");
-        Log.d("debug_addDatatoJson", json);
-
 
         time = map.get("timestamp");
-        area = map.get("location.getLatitude");
-        area2 = map.get("location.getLongitude");
+        area = map.get("Latitude");
+        area2 = map.get("Longitude");
         status = map.get("afk_mode");
 
     }
@@ -87,8 +93,12 @@ public class PrintPreviewActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 本来ならAsyncTaskに投げ込むべきAPIリクエストであるが、まぁ面倒臭いので制限を壊す
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.activity_printpreview);
-        //imageView = findViewById(R.id.seal_view);
+        imageView = findViewById(R.id.imageView);
         // text_view： activity_main.xml の TextView の id
         TextView mImageDetails = findViewById(R.id.text_view);
         // テキストを設定。画像更新後、OCR用のString変数として利用。
@@ -99,33 +109,11 @@ public class PrintPreviewActivity extends AppCompatActivity {
         });
         copyFile();
         MyView();
-
+        imageView.setImageBitmap(bitmap);
     }
 
     public void MyView(){
-        setContentView(R.layout.activity_printpreview);
-        Paint paint1 = new Paint();
 
-        float StrokeWidth1 = 1.0f;
-
-        imageView1 = findViewById(R.id.imageView);
-        Bitmap bitmap = Bitmap.createBitmap(900, 1200, Bitmap.Config.ARGB_8888);
-
-        // Canvasの作成
-        Canvas canvas;
-        canvas = new Canvas(bitmap);
-
-
-        paint1.setColor(Color.BLACK);
-        paint1.setStrokeWidth(StrokeWidth1);
-        paint1.setTypeface(Typeface.DEFAULT);
-        paint1.setStyle(Paint.Style.FILL);
-        paint1.setTextSize(20);
-
-        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.seal_base);
-
-
-        Matrix matrix = new Matrix();
         Map<String , String> map = new HashMap<>();
         try {
             addDataToJson(map);
@@ -133,24 +121,62 @@ public class PrintPreviewActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        canvas.drawBitmap(bmp, matrix, null);
-        canvas.drawText(""+time, 120, 690, paint1);
-        canvas.drawText(""+area + ","+area2, 120, 750, paint1);
-        canvas.drawText(""+status, 120, 900, paint1);
+        File file = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
+        try(InputStream inputStream0 = new FileInputStream(file)) {
+            // mutableなオブジェクトに変換を掛ける
+            bitmap = BitmapFactory.decodeStream(inputStream0).copy(Bitmap.Config.ARGB_8888, true);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        String url = "http://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x="+area2+"&y="+area;
+        JsonNode ApiResponse = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map_2 = null;
+        try {
+            // キーがString、値がObjectのマップに読み込みます。
+            map_2 = mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        HashMap<String, List<HashMap<String,String>>> codeData_before2 = (HashMap<String,List<HashMap<String,String>>>) map_2.get("response");
+        List<HashMap<String,String>> codeData_before1 = codeData_before2.get("location");
+        HashMap<String,String> codeData = codeData_before1.get(0);
+        bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length()-4), new Point(200,1190), Color.BLACK, 100, 60,false,957,1950);
+        bitmap = drawStringonBitmap(bitmap, "〒"+codeData.get("postal")+"  "+codeData.get("prefecture")+codeData.get("city")+codeData.get("town"), new Point(200,1290), Color.BLACK, 100, 30,false,957,1950);
+        bitmap = drawStringonBitmap(bitmap, status, new Point(200,1425), Color.BLACK, 100, 30,false,957,1950);
+    }
 
+    public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width , int height) {
 
+        Bitmap result = Bitmap.createBitmap(width, height, src.getConfig());
 
-        imageView1.setImageBitmap(bitmap);
-
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(src, 0, 0, null);
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setAlpha(alpha);
+        paint.setTextSize(size);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setUnderlineText(underline);
+        if(string.length() >= 24){
+            String string_1 = string.substring(0, 24);
+            String string_2 = string.substring(24);
+            canvas.drawText(string_1, location.x, location.y, paint);
+            canvas.drawText(string_2, location.x, location.y+100, paint);
+        }else {
+            canvas.drawText(string, location.x, location.y, paint);
+        }
+        return result;
     }
 
 
     private void copyFile() {
         Context context = getApplicationContext();
-        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
         Resources r = getResources();
         Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
-//        imageView.setImageBitmap(bmp);
         try {
             FileOutputStream fos = null;
             fos = new FileOutputStream(file);
@@ -162,5 +188,31 @@ public class PrintPreviewActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static JsonNode getResult(String urlString) {
+        String result = "";
+        JsonNode root = null;
+        try {
+
+            URL url = new URL(urlString);
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            con.connect(); // URL接続
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String tmp = "";
+
+            while ((tmp = in.readLine()) != null) {
+                result += tmp;
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            root = mapper.readTree(result);
+            in.close();
+            con.disconnect();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return root;
     }
 }

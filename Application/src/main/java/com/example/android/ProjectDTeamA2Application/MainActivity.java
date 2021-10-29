@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         createJson();
         checkPermission();
 
+        
+
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
@@ -228,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
-                    uploadImage(cvs);
+                    // uploadImage(cvs);
                     imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
