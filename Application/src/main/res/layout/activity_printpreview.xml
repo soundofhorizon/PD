@@ -3,12 +3,17 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+
+
     <ImageView
-        android:id="@+id/seal_view"
+        android:id="@+id/imageView"
         android:layout_width="fill_parent"
         android:layout_height="899dp"
         android:layout_weight="1"
-        android:background="#00ff00" />
+        android:background="#00ff00"
+        />
+
     <TextView
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
@@ -18,4 +23,5 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/printPDF"/>
+
 </LinearLayout>
