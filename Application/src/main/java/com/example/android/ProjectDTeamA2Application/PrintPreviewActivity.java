@@ -108,8 +108,9 @@ public class PrintPreviewActivity extends AppCompatActivity {
 
         float StrokeWidth1 = 1.0f;
 
-        imageView1 = findViewById(R.id.imageView);
+        imageView1 = findViewById(R.id.imageView1);
         Bitmap bitmap = Bitmap.createBitmap(900, 1200, Bitmap.Config.ARGB_8888);
+
 
         // Canvasの作成
         Canvas canvas;
@@ -134,9 +135,10 @@ public class PrintPreviewActivity extends AppCompatActivity {
         }
 
         canvas.drawBitmap(bmp, matrix, null);
-        canvas.drawText(""+time, 120, 690, paint1);
-        canvas.drawText(""+area + ","+area2, 120, 750, paint1);
-        canvas.drawText(""+status, 120, 900, paint1);
+        canvas.drawText(""+time, 100, 470, paint1);
+        canvas.drawText(""+area + ","+area2, 100, 510, paint1);
+        canvas.drawText(""+status, 100, 580, paint1);
+
 
 
 
