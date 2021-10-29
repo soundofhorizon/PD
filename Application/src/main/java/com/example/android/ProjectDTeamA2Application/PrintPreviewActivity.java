@@ -6,13 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -32,7 +31,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,10 +139,15 @@ public class PrintPreviewActivity extends AppCompatActivity {
         }
         HashMap<String, List<HashMap<String,String>>> codeData_before2 = (HashMap<String,List<HashMap<String,String>>>) map_2.get("response");
         List<HashMap<String,String>> codeData_before1 = codeData_before2.get("location");
-        HashMap<String,String> codeData = codeData_before1.get(0);
-        bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length()-4), new Point(200,1190), Color.BLACK, 100, 60,false,957,1950);
-        bitmap = drawStringonBitmap(bitmap, "〒"+codeData.get("postal")+"  "+codeData.get("prefecture")+codeData.get("city")+codeData.get("town"), new Point(200,1290), Color.BLACK, 100, 30,false,957,1950);
-        bitmap = drawStringonBitmap(bitmap, status, new Point(200,1425), Color.BLACK, 100, 30,false,957,1950);
+        try {
+            HashMap<String, String> codeData = codeData_before1.get(0);
+            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length()-4), new Point(200,1190), Color.BLACK, 100, 60,false,957,1950);
+            bitmap = drawStringonBitmap(bitmap, "〒"+codeData.get("postal")+"  "+codeData.get("prefecture")+codeData.get("city")+codeData.get("town"), new Point(200,1290), Color.BLACK, 100, 30,false,957,1950);
+            bitmap = drawStringonBitmap(bitmap, status, new Point(200,1425), Color.BLACK, 100, 30,false,957,1950);
+        }catch (NullPointerException e){
+            // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
+            moveTaskToBack(true);
+        }
     }
 
     public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width , int height) {

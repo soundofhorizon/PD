@@ -38,4 +38,11 @@
     <string name="toAFKInput">放置態様入力画面に移動</string>
     <string name="printPDF">PDFを発行する</string>
     <string name="description_for_create_pdf">上記標章画像に問題が無ければ、下にある[PDFを発行する]ボタンを押してください。</string>
+    <string name="user_login_title">ログインIDとPasswordを入力してください。</string>
+    <string name="user_login_label_id">ユーザーID</string>
+    <string name="user_login_edittext_id">IDを入力してください</string>
+    <string name="user_login_label_pass">Password</string>
+    <string name="user_login_edittext_pass">Passwordを入力してください</string>
+    <string name="title">駐車違反取り締まり用データ登録アプリ</string>
+    <string name="to_main_activity">ログイン</string>
 </resources>
