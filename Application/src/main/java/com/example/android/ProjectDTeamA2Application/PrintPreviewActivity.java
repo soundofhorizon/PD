@@ -11,7 +11,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -56,7 +55,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -102,9 +101,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         // テキストを設定。画像更新後、OCR用のString変数として利用。
         mImageDetails.setText(R.string.description_for_create_pdf);
         // printPDFボタンを押されたらPDFを発行する。それで終わり。
-        findViewById(R.id.printPDF).setOnClickListener(v1 -> {
-            Log.d("push_pdf_button", "PDF発行関数をここに挿入してタイトルへ差し戻す");
-        });
+        findViewById(R.id.printPDF).setOnClickListener(v1 -> Log.d("push_pdf_button", "PDF発行関数をここに挿入してタイトルへ差し戻す"));
         copyFile();
         MyView();
         imageView.setImageBitmap(bitmap);
@@ -132,12 +129,12 @@ public class PrintPreviewActivity extends AppCompatActivity {
         HashMap<String, Object> map_2 = null;
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map_2 = mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>(){});
+            map_2 = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>(){});
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
         }
-        HashMap<String, List<HashMap<String,String>>> codeData_before2 = (HashMap<String,List<HashMap<String,String>>>) map_2.get("response");
+        HashMap<String, List<HashMap<String,String>>> codeData_before2 = (HashMap<String,List<HashMap<String,String>>>) Objects.requireNonNull(map_2).get("response");
         List<HashMap<String,String>> codeData_before1 = codeData_before2.get("location");
         try {
             HashMap<String, String> codeData = codeData_before1.get(0);
@@ -181,7 +178,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         Resources r = getResources();
         Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
         try {
-            FileOutputStream fos = null;
+            FileOutputStream fos;
             fos = new FileOutputStream(file);
             // 保存(JPGで保存している。bitmapに直すときはここを参照せよ: https://qiita.com/aymikmts/items/7139fa6c4da3b57cb4fc)
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -194,7 +191,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
     }
 
     private static JsonNode getResult(String urlString) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         JsonNode root = null;
         try {
 
@@ -202,14 +199,14 @@ public class PrintPreviewActivity extends AppCompatActivity {
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.connect(); // URL接続
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String tmp = "";
+            String tmp;
 
             while ((tmp = in.readLine()) != null) {
-                result += tmp;
+                result.append(tmp);
             }
 
             ObjectMapper mapper = new ObjectMapper();
-            root = mapper.readTree(result);
+            root = mapper.readTree(result.toString());
             in.close();
             con.disconnect();
         }catch(Exception e) {
@@ -217,5 +214,9 @@ public class PrintPreviewActivity extends AppCompatActivity {
         }
 
         return root;
+    }
+
+    private void insert_warn_info(){
+
     }
 }

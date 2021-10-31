@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
         } catch (Exception e) {
             // エラー
             e.printStackTrace();

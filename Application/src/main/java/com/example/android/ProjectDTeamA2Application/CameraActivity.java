@@ -16,10 +16,7 @@
 
 package com.example.android.ProjectDTeamA2Application;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Address;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -27,7 +24,6 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -61,7 +57,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
         } catch (Exception e) {
             // エラー
             e.printStackTrace();

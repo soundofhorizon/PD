@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.CheckBox;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,7 +34,7 @@ public class AFKInputActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
