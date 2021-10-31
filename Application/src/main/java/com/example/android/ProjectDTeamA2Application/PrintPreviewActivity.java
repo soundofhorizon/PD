@@ -8,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -28,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -104,6 +107,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         findViewById(R.id.printPDF).setOnClickListener(v1 -> Log.d("push_pdf_button", "PDF発行関数をここに挿入してタイトルへ差し戻す"));
         copyFile();
         MyView();
+        outputPDF();
         imageView.setImageBitmap(bitmap);
     }
 
@@ -216,7 +220,27 @@ public class PrintPreviewActivity extends AppCompatActivity {
         return root;
     }
 
-    private void insert_warn_info(){
-
+    private void outputPDF(){
+        PdfDocument doc = new PdfDocument();
+        File file = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
+        PdfDocument.Page page = doc.startPage(new PdfDocument.PageInfo.Builder(595,842,0).create());
+        Canvas canvas = page.getCanvas();;
+        Rect srcRect = new Rect(0, 0,bitmap.getWidth(),bitmap.getHeight());
+        Rect destRect = new Rect(0, 0,bitmap.getWidth(),bitmap.getHeight());
+        canvas.drawBitmap(bitmap,srcRect,destRect,null);
+        doc.finishPage(page);
+        try {
+            if(file != null){
+                FileOutputStream outputStream = new FileOutputStream(file);
+                doc.writeTo(outputStream);
+            }else {
+                File appSpecificExternalDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
+                OutputStream outputStream = new FileOutputStream(appSpecificExternalDir);
+                doc.writeTo(outputStream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        doc.close();
     }
 }
