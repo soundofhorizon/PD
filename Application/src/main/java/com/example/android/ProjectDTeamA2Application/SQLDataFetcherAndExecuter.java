@@ -113,6 +113,44 @@ public class SQLDataFetcherAndExecuter {
         return now.get(0).get("id");
     }
 
+    protected static Integer executeInsertCarDataResult(Integer id, String car_classify_hiragana, Integer car_classify_num, Integer car_region_id, String car_number){
+        // https://peteama-apiserver.herokuapp.com/api/rest/insert_car_data/:id/:car_classify_hiragana/:car_classify_num/:car_region_id/:car_number
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/insert_car_data/" + id.toString() + "/" + car_classify_hiragana + "/" + car_classify_num.toString() + "/" + car_region_id.toString() + "/" + car_number;
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HashMap<String,Object> warnInfoData = (HashMap<String, Object>) Objects.requireNonNull(map).get("insert_car_data");
+        List<HashMap<String,Integer>> now = (List<HashMap<String, Integer>>) warnInfoData.get("returning");
+        return now.get(0).get("id");
+    }
+
+    protected static Integer executeInsertPunishDataResult(Integer id, Integer fine_id, Integer afk_mode_id, String exp_date){
+        // https://peteama-apiserver.herokuapp.com/api/rest/insert_punish_data/:id/:fine_id/:afk_mode_id/:exp_date
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/insert_punish_data/" + id.toString() + "/" + fine_id.toString() + "/" + afk_mode_id.toString() + "/" + exp_date;
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HashMap<String,Object> warnInfoData = (HashMap<String, Object>) Objects.requireNonNull(map).get("insert_car_data");
+        List<HashMap<String,Integer>> now = (List<HashMap<String, Integer>>) warnInfoData.get("returning");
+        return now.get(0).get("id");
+    }
+
     private static JsonNode getResult(String urlString) {
         StringBuilder result = new StringBuilder();
         JsonNode root = null;
