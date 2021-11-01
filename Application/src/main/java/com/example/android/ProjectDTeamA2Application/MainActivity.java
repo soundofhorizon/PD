@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         createJson();
         checkPermission();
-
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
@@ -184,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("debug_addDatatoJson", json);
+        Log.d("debug_addDatatoJsonだよ", json);
     }
 
 
