@@ -83,7 +83,7 @@ public class SQLDataFetcherAndExecuter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List<HashMap<String,Integer>> carData = (List<HashMap<String,Integer>>) Objects.requireNonNull(map).get("data");
+        List<HashMap<String,Integer>> carData = (List<HashMap<String,Integer>>) Objects.requireNonNull(map).get("car_data");
         int max=0, now;
         for(int i = 0; i < carData.size(); ++i){
             now = carData.get(i).get("id");
@@ -92,6 +92,94 @@ public class SQLDataFetcherAndExecuter {
             }
         }
         return max;
+    }
+
+    protected static Integer check2MatchCarDataTable(String car_classify_hiragana, Integer car_classify_num, Integer car_region_id, String car_number){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/car_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> carData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("car_data");
+        for(int i = 0; i < carData.size(); ++i){
+            if(carData.get(i).get("car_region_id").toString().equals(car_region_id.toString()) && carData.get(i).get("car_classify_num").toString().equals(car_classify_num.toString()) && carData.get(i).get("car_classify_hiragana").toString().equals(car_classify_hiragana) && carData.get(i).get("car_number").toString().equals(car_number)){
+                return (int)carData.get(i).get("id");
+            }
+        }
+        // ここまで来たら一致0により返却
+        return 0;
+    }
+
+    protected static Integer check2MatchFineDataTable(Integer fine_amount){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/fine_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> fineData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("fine_data");
+        for(int i = 0; i < fineData.size(); ++i){
+            if(fineData.get(i).get("fine_amount").toString().equals(fine_amount.toString())){
+                return (int)fineData.get(i).get("id");
+            }
+        }
+        // ここまで来たら一致0により返却
+        return 0;
+    }
+
+    protected static Integer check2MatchAfkModeDataTable(String afk_mode){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/afk_mode_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> fineData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("afk_mode_data");
+        for(int i = 0; i < fineData.size(); ++i){
+            if(fineData.get(i).get("afk_mode").toString().equals(afk_mode)){
+                return (int)fineData.get(i).get("id");
+            }
+        }
+        // ここまで来たら一致0により返却
+        return 0;
+    }
+
+    protected static Integer check2MatchRegionDataTable(String region_name){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/region_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> regionData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("region_data");
+        for(int i = 0; i <  regionData.size(); ++i){
+            if( regionData.get(i).get("region_name").toString().equals(region_name)){
+                return (int) regionData.get(i).get("id");
+            }
+        }
+        // ここまで来たら一致0により返却
+        return 0;
     }
 
     protected static Integer executeInsertWarnInfoResult(Integer id, String userId, String timestamp, Integer punishId, Double latitude, Double longitude, Integer carDataId, Boolean isPayment, String imageUrl){
@@ -146,7 +234,7 @@ public class SQLDataFetcherAndExecuter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        HashMap<String,Object> warnInfoData = (HashMap<String, Object>) Objects.requireNonNull(map).get("insert_car_data");
+        HashMap<String,Object> warnInfoData = (HashMap<String, Object>) Objects.requireNonNull(map).get("insert_punish_data");
         List<HashMap<String,Integer>> now = (List<HashMap<String, Integer>>) warnInfoData.get("returning");
         return now.get(0).get("id");
     }
