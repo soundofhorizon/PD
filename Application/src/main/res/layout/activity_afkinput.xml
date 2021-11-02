@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="150dp"
         android:text="@string/AFKwarn1" />
 
     <CheckBox
@@ -72,6 +72,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:layout_marginTop="100dp"
         android:text="@string/AFKsend" />
 
 </LinearLayout>
