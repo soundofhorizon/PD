@@ -55,21 +55,21 @@ public class PrintPreviewActivity extends AppCompatActivity {
         // 本来ならAsyncTaskに投げ込むべきAPIリクエストであるが、まぁ面倒臭いので制限を壊す
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
         setContentView(R.layout.activity_printpreview);
+        imageView = findViewById(R.id.seal_imageView);
         //imageView = findViewById(R.id.imageView);
         // text_view： activity_main.xml の TextView の id
         TextView mImageDetails = findViewById(R.id.text_view);
         // テキストを設定。画像更新後、OCR用のString変数として利用。
         mImageDetails.setText(R.string.description_for_create_pdf);
         // printPDFボタンを押されたらPDFを発行する。それで終わり。
-        findViewById(R.id.printPDF).setOnClickListener(v1 -> Log.d("push_pdf_button", "PDF発行関数をここに挿入してタイトルへ差し戻す"));
+        findViewById(R.id.printPDF).setOnClickListener(v1 -> {
+            outputPDF();
+            moveTaskToBack(true);
+        });
         copyFile();
         MyView();
-        outputPDF();
-        showPDF();
-//        imageView.setImageBitmap(bitmap);
-
+        imageView.setImageBitmap(bitmap);
     }
 
     void addDataToJson(Map<String, String> addData) throws IOException {
@@ -147,21 +147,21 @@ public class PrintPreviewActivity extends AppCompatActivity {
         List<HashMap<String, String>> codeData_before1 = codeData_before2.get("location");
         try {
             HashMap<String, String> codeData = codeData_before1.get(0);
-            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(200, 1190), Color.BLACK, 100, 60, false, 957, 1950);
-            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(200, 1290), Color.BLACK, 100, 30, false, 957, 1950);
-            bitmap = drawStringonBitmap(bitmap, status, new Point(200, 1425), Color.BLACK, 100, 30, false, 957, 1950);
+            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(80, 500), Color.BLACK, 100, 30, false, 420, 858, false);
+            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(80, 560), Color.BLACK, 100, 15, false, 420, 858, false);
+            bitmap = drawStringonBitmap(bitmap, status, new Point(80, 640), Color.BLACK, 100, 15, false, 420, 858, true);
         } catch (NullPointerException e) {
             // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
             moveTaskToBack(true);
         }
     }
 
-    public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width, int height) {
+    public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width, int height, Boolean orikaesi_frag) {
 
         Bitmap result = Bitmap.createBitmap(width, height, src.getConfig());
 
         Canvas canvas = new Canvas(result);
-        canvas.drawBitmap(src, 0, 0, null);
+        canvas.drawBitmap(src, 0, 20, null);
         Paint paint = new Paint();
         paint.setColor(color);
         paint.setAlpha(alpha);
@@ -169,11 +169,11 @@ public class PrintPreviewActivity extends AppCompatActivity {
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
         paint.setUnderlineText(underline);
-        if (string.length() >= 24) {
-            String string_1 = string.substring(0, 24);
-            String string_2 = string.substring(24);
+        if (string.length() >= 19 && orikaesi_frag) {
+            String string_1 = string.substring(0, 19);
+            String string_2 = string.substring(19);
             canvas.drawText(string_1, location.x, location.y, paint);
-            canvas.drawText(string_2, location.x, location.y + 100, paint);
+            canvas.drawText(string_2, location.x, location.y + 30, paint);
         } else {
             canvas.drawText(string, location.x, location.y, paint);
         }
@@ -236,12 +236,13 @@ public class PrintPreviewActivity extends AppCompatActivity {
         Rect destRect = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
         canvas.drawBitmap(bitmap, srcRect, destRect, null);
         doc.finishPage(page);
+        File file_pdf = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.pdf");
         try {
             if (file != null) {
-                FileOutputStream outputStream = new FileOutputStream(file, false);
+                FileOutputStream outputStream = new FileOutputStream(file_pdf, false);
                 doc.writeTo(outputStream);
             } else {
-                File appSpecificExternalDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
+                File appSpecificExternalDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.pdf");
                 OutputStream outputStream = new FileOutputStream(appSpecificExternalDir);
                 doc.writeTo(outputStream);
             }
@@ -260,9 +261,6 @@ public class PrintPreviewActivity extends AppCompatActivity {
             Bitmap pdf = Bitmap.createBitmap(page.getWidth(),page.getHeight(),Bitmap.Config.ARGB_4444);
             page.render(pdf,null,null,PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             page.close();
-            imageView = findViewById(R.id.imageView);
-            imageView.setImageBitmap(pdf);
-
         } catch (IOException e) {
             e.printStackTrace();
         }

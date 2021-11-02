@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_imageview);
         findViews();
         setListeners();
-        createJson();
         checkPermission();
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
@@ -123,32 +122,6 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
         }
     }
-
-    // この関数は、Jsonの初期化を行うための物である。
-    private void createJson(){
-        // 空HashMapの作成
-        Map<String , String> map = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-
-        String json = null;
-        try {
-            // mapをjson文字列に変換
-            json = mapper.writeValueAsString(map);
-        } catch (Exception e) {
-            // エラー
-            e.printStackTrace();
-        }
-        Context context = getApplicationContext();
-        String fileName = "data.json";
-        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
-        try (FileWriter writer = new FileWriter(file)){
-            writer.write(Objects.requireNonNull(json));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Log.d("debug", json);
-    }
-
 
     void  addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。

@@ -31,6 +31,8 @@ public class UserLoginActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        createJson();
+
         setContentView(R.layout.activity_userlogin);
         TextView resultTextView = findViewById(R.id.user_login_result);
         resultTextView.setText("ユーザーデータを照合には少々時間がかかります。\nログインボタンは一度のみタップしてください。");
@@ -108,6 +110,31 @@ public class UserLoginActivity extends AppCompatActivity {
             }
             resultTextView.setText(getString(R.string.wrong_pass));
         } );
+    }
+
+    // この関数は、Jsonの初期化を行うための物である。
+    private void createJson(){
+        // 空HashMapの作成
+        Map<String , String> map = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        String json = null;
+        try {
+            // mapをjson文字列に変換
+            json = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        Context context = getApplicationContext();
+        String fileName = "data.json";
+        file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        try (FileWriter writer = new FileWriter(file)){
+            writer.write(Objects.requireNonNull(json));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.d("debug", json);
     }
 
     void  addDataToJson(Map<String, String> addData) throws IOException {
