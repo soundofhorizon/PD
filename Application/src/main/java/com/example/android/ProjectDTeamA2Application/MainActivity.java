@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private static String STATUS = "GONE";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -193,15 +195,32 @@ public class MainActivity extends AppCompatActivity {
                     Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
-                    // uploadImage(cvs);
+                    buttonVisualSwitcher();
+                    uploadImage(cvs);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    buttonVisualSwitcher();
                     imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 findViewById(R.id.button_read).setVisibility(View.GONE);
-                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    private void buttonVisualSwitcher(){
+        switch (STATUS){
+            case "VISIBLE":
+                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
+                break;
+            case "GONE":
+                findViewById(R.id.toAFKInput).setVisibility(View.GONE);
+                break;
+        }
     }
 
     public void uploadImage(Bitmap bitmap){
@@ -339,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             message.append("nothing");
         }
-
+        STATUS = "VISIBLE";
         return message.toString();
     }
 
