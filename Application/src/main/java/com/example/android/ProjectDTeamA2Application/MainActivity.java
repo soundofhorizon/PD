@@ -172,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
                     // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
-
                     WindowManager wm = (WindowManager)this.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
                     Display display = Objects.requireNonNull(wm).getDefaultDisplay();
                     @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -180,7 +179,8 @@ public class MainActivity extends AppCompatActivity {
                     // rotate 90 degree and attach gray scale
                     Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),mat,true));
                     // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
-                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate,(int)(bmp_rotate.getWidth()/2-(500*((double)bmp_rotate.getWidth()/(double)display.getWidth()))), display.getHeight()/2 -470, (int)(950*((double)bmp_rotate.getWidth()/(double) display.getWidth())), 490, null, true);
+                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate, (int) (((float)display.getWidth()/6)*((float)bmp_rotate.getWidth()/(float)display.getWidth())), (int) (((float)display.getHeight()/3)*((float)bmp_rotate.getHeight()/(float)display.getHeight())), (int) (((float)display.getWidth()*2/3)*((float)bmp_rotate.getWidth()/(float)display.getWidth())), (int) (((float)display.getHeight()/3)*((float)bmp_rotate.getHeight()/(float)display.getHeight())), null, true);
+                    imageView1.setImageBitmap(bmp);
 
                     Rect srcRect1 = new Rect(0,0,bmp.getWidth(),bmp.getHeight()/2);
                     Rect srcRect2 = new Rect(0, bmp.getHeight()/2, bmp.getWidth(), bmp.getHeight());
@@ -196,18 +196,17 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
                     buttonVisualSwitcher();
-                    uploadImage(cvs);
+                    // uploadImage(cvs);
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     buttonVisualSwitcher();
-                    imageView1.setImageBitmap(cvs);
+                    // imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                findViewById(R.id.button_read).setVisibility(View.GONE);
             }
         });
     }

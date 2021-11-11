@@ -43,8 +43,8 @@ public class overlay extends View {
 
 
         //center
-        canvas.drawRect(display.getWidth()/2 -500, display.getHeight()/2 -400 , 450 + display.getWidth() / 2, display.getHeight()/2 + 160 , paint);
-        canvas.drawLine(display.getWidth()/2 -500,display.getHeight()/2-120,450 + display.getWidth() / 2,display.getHeight()/2-120,mDotPaint);
+        canvas.drawRect(display.getWidth()/6, display.getHeight()/3 , display.getWidth()*5/6, display.getHeight()*2/3 , paint);
+        canvas.drawLine(display.getWidth()/6,display.getHeight()/2,display.getWidth()*5/6,display.getHeight()/2, mDotPaint);
     }
 
     public int dp2px(float dp,Context context){
