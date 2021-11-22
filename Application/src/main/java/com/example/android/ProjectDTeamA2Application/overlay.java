@@ -41,10 +41,11 @@ public class overlay extends View {
         @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
 
-
+//////////////////////////////////////////ここから
         //center
-        canvas.drawRect(display.getWidth()/6, display.getHeight()/3 , display.getWidth()*5/6, display.getHeight()*2/3 , paint);
-        canvas.drawLine(display.getWidth()/6,display.getHeight()/2,display.getWidth()*5/6,display.getHeight()/2, mDotPaint);
+        canvas.drawRect(50,600,1050,1100 , paint);
+        canvas.drawLine(50,850,1050,850, mDotPaint);
+
     }
 
     public int dp2px(float dp,Context context){

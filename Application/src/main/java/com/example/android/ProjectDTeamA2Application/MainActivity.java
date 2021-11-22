@@ -177,21 +177,19 @@ public class MainActivity extends AppCompatActivity {
                     @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
                     display.getMetrics(displayMetrics);
                     // rotate 90 degree and attach gray scale
-                    Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),mat,true));
+                    Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,4032,3024,mat,true));
                     // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
-                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate, (int) (((float)display.getWidth()/6)*((float)bmp_rotate.getWidth()/(float)display.getWidth())), (int) (((float)display.getHeight()/3)*((float)bmp_rotate.getHeight()/(float)display.getHeight())), (int) (((float)display.getWidth()*2/3)*((float)bmp_rotate.getWidth()/(float)display.getWidth())), (int) (((float)display.getHeight()/3)*((float)bmp_rotate.getHeight()/(float)display.getHeight())), null, true);
-                    imageView1.setImageBitmap(bmp);
-
-                    Rect srcRect1 = new Rect(0,0,bmp.getWidth(),bmp.getHeight()/2);
-                    Rect srcRect2 = new Rect(0, bmp.getHeight()/2, bmp.getWidth(), bmp.getHeight());
+                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate, (int) (((float)50)*((float)3024/(float)1080)), (int) (((float)900)*((float)4032/(float)2237)), (int) (((float)960)*((float)3024/(float)1080)), (int) (((float)800)*((float)4032/(float)2237)), null, true);
+                    Rect srcRect1 = new Rect(0,0,2688,720);
+                    Rect srcRect2 = new Rect(0, 720, 2688, 1441);
                     // 拡縮を揃えることを考えれば、width 1/2なら、heightも1/2だろう？
-                    Rect destRect1 = new Rect(0,0,bmp.getWidth()/2,bmp.getHeight()/2);
-                    Rect destRect2 = new Rect(0,0,bmp.getWidth()/2,bmp.getHeight()/2);
+                    Rect destRect1 = new Rect(0,0,448,240);
+                    Rect destRect2 = new Rect(0,0,448,240);
                     // offsetは見やすいようにしているが、正直OCR的にはどうなんだろうか。要検証。また、それを言うならHeightは0でいい。canvasとは別に、matを適用した時点のbitmapを表示させればユーザーは満足するだろう。
-                    destRect1.offset(display.getWidth()/10,imageView1.getHeight()/2);
-                    destRect2.offset(display.getWidth()/10+srcRect1.width()/2,imageView1.getHeight()/2);
+                    destRect1.offset(108,996);
+                    destRect2.offset(556,996);
+                    Bitmap cvs = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
 
-                    Bitmap cvs = Bitmap.createBitmap(imageView1.getWidth(),imageView1.getHeight(), Bitmap.Config.ARGB_4444);
                     Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
@@ -203,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     buttonVisualSwitcher();
-                    // imageView1.setImageBitmap(cvs);
+                     imageView1.setImageBitmap(cvs);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
