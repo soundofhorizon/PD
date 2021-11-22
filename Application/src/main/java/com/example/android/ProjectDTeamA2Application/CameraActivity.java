@@ -89,8 +89,6 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         addContentView(new overlay(this), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
-        //visible
-        //findViewById(R.id.picture).setVisibility(View.VISIBLE);
         if (null == savedInstanceState) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
@@ -160,6 +158,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         } catch (IOException e) {
             e.printStackTrace();
         }
+        findViewById(R.id.picture).setVisibility(View.VISIBLE);
     }
 
 

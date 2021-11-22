@@ -289,6 +289,7 @@ public class Camera2BasicFragment extends Fragment
     {
         mCaptureCallback = new CameraCaptureSession.CaptureCallback() {
 
+            @SuppressWarnings("ConstantConditions")
             private void process(CaptureResult result) {
                 switch (mState) {
                     case STATE_PREVIEW: {
@@ -425,7 +426,7 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
-        // view.findViewById(R.id.picture).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.picture).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = view.findViewById(R.id.texture);
     }
