@@ -5,15 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,11 +30,51 @@ import java.util.Objects;
 public class UserLoginActivity extends AppCompatActivity {
 
     private File file;
+    private FirebaseAuth mAuth;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+    }
+
+    private void updateUI(FirebaseUser user) {
+        TextView resultTextView = findViewById(R.id.user_login_result);
+        if(user == null){
+            resultTextView.setText("Auth Failed");
+        }else {
+            resultTextView.setText("Auth done! login as: " + user.toString());
+        }
+    }
+
+    private void startSignIn() {
+        // [START sign_in_custom]
+        mAuth.signInWithEmailAndPassword("b9p31013@bunkyo.ac.jp", "password")
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("Login", "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        updateUI(user);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w("Login", "signInWithEmail:failure", task.getException());
+                        Toast.makeText(UserLoginActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                        updateUI(null);
+                    }
+                });
+    }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mAuth = FirebaseAuth.getInstance();
+        startSignIn();
         createJson();
 
         setContentView(R.layout.activity_userlogin);
@@ -45,22 +89,22 @@ public class UserLoginActivity extends AppCompatActivity {
         // 各種insertする際のid引数はuniqueである必要があるため、fetchMaxIndexOfCarDataTable()等で、現在テーブルにある最大のindexの値を取得した上で+1して引数に挿入してください
 
         // sample-region return ID
-        // Log.d("find_region", String.valueOf(SQLDataFetcherAndExecuter.check2MatchRegionDataTable("つくば")));
+        // Log.d("find_region", String.valueOf(SQLDataFetcherAndExecutor.check2MatchRegionDataTable("つくば")));
 
         // sample-fine return ID
-        // Log.d("find_fine", String.valueOf(SQLDataFetcherAndExecuter.check2MatchFineDataTable(10000)));
+        // Log.d("find_fine", String.valueOf(SQLDataFetcherAndExecutor.check2MatchFineDataTable(10000)));
 
         // sample-afk-mode return ID
-        // Log.d("find_afk", String.valueOf(SQLDataFetcherAndExecuter.check2MatchAfkModeDataTable("停車及び駐車を禁止する場所")));
+        // Log.d("find_afk", String.valueOf(SQLDataFetcherAndExecutor.check2MatchAfkModeDataTable("停車及び駐車を禁止する場所")));
 
         // sample-insert-warn-info return ID
-        // Log.d("insert", String.valueOf(SQLDataFetcherAndExecuter.executeInsertWarnInfoResult(11,"1", "2020-09-28T11:11:11",2,37.69790673216146, 133.41260169608,1,false, "6b78ecc860e1a91752074d95b7227da4")));
+        // Log.d("insert", String.valueOf(SQLDataFetcherAndExecutor.executeInsertWarnInfoResult(11,"1", "2020-09-28T11:11:11",2,37.69790673216146, 133.41260169608,1,false, "6b78ecc860e1a91752074d95b7227da4")));
 
         // sample-insert-car-data return ID
-        // Log.d("insert_car_data", String.valueOf(SQLDataFetcherAndExecuter.executeInsertCarDataResult(SQLDataFetcherAndExecuter.fetchMaxIndexOfCarDataTable()+1,"ふ", 460, SQLDataFetcherAndExecuter.check2MatchRegionDataTable("愛媛"),"9001")));
+        // Log.d("insert_car_data", String.valueOf(SQLDataFetcherAndExecutor.executeInsertCarDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable()+1,"ふ", 460, SQLDataFetcherAndExecutor.check2MatchRegionDataTable("愛媛"),"9001")));
 
         // sample-insert-punish-data return ID
-        // Log.d("insert-punish", String.valueOf(SQLDataFetcherAndExecuter.executeInsertPunishDataResult(SQLDataFetcherAndExecuter.fetchMaxIndexOfPunishDataTable()+1,SQLDataFetcherAndExecuter.check2MatchFineDataTable(10000),SQLDataFetcherAndExecuter.check2MatchAfkModeDataTable("時間制限駐車区間（パーキング・メーター設置区間）における駐車"),"2022-02-22T00:00:11")));
+        // Log.d("insert-punish", String.valueOf(SQLDataFetcherAndExecutor.executeInsertPunishDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable()+1,SQLDataFetcherAndExecutor.check2MatchFineDataTable(10000),SQLDataFetcherAndExecutor.check2MatchAfkModeDataTable("時間制限駐車区間（パーキング・メーター設置区間）における駐車"),"2022-02-22T00:00:11")));
 
         toMainButton.setOnClickListener( v -> {
             // APIのresponseはdelayがあるので、待ってくれとtextviewで伝えよう
@@ -71,7 +115,7 @@ public class UserLoginActivity extends AppCompatActivity {
             String url = "https://peteama-apiserver.herokuapp.com/api/rest/user_data";
 
             // REST APIに問い合わせを行い、user_dataのjsonを取得する。
-            JsonNode ApiResponse = SQLDataFetcherAndExecuter.userDataFetchResult();
+            JsonNode ApiResponse = SQLDataFetcherAndExecutor.userDataFetchResult();
             ObjectMapper mapper = new ObjectMapper();
             HashMap<String, Object> map = null;
             try {

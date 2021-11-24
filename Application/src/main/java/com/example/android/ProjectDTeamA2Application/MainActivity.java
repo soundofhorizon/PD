@@ -13,11 +13,9 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -26,25 +24,21 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.vision.v1.Vision;
-import com.google.api.services.vision.v1.VisionRequest;
-import com.google.api.services.vision.v1.VisionRequestInitializer;
-import com.google.api.services.vision.v1.model.AnnotateImageRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
-import com.google.api.services.vision.v1.model.Feature;
-import com.google.api.services.vision.v1.model.Image;
-import com.google.api.services.vision.v1.model.TextAnnotation;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,8 +46,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -69,25 +61,17 @@ public class MainActivity extends AppCompatActivity {
     private final String fileName = "pic.jpg";
     private File file;
 
-    // Google Cloud Visionの各種設定
-
-    //API keyを直書きしている。この間はgithubなどを他人に見せる、他人にコードを譲渡するなどの行為一切を禁ずる。
-    //TODO: API KEYをどこかの環境変数として早く格納するべき
-    private static final String CLOUD_VISION_API_KEY = "AIzaSyBSD-HrXEvueW_SzFUa11q7NY9tv10Mp-o";
-    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
-    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
-    private static final int MAX_LABEL_RESULTS = 1;
-
     private static String carNumber ="nothing";
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static String STATUS = "GONE";
+
+    private FirebaseFunctions mFunctions;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mFunctions = FirebaseFunctions.getInstance();
         setContentView(R.layout.activity_imageview);
         findViews();
         setListeners();
@@ -114,6 +98,18 @@ public class MainActivity extends AppCompatActivity {
             }
             startActivity(new Intent(this, AFKInputActivity.class));
         } );
+    }
+
+    private Task<JsonElement> annotateImage(String requestJson) {
+        return mFunctions
+                .getHttpsCallable("annotateImage")
+                .call(requestJson)
+                .continueWith(task -> {
+                    // This continuation runs on either success or failure, but if the task
+                    // has failed then getResult() will throw an Exception which will be
+                    // propagated down.
+                    return JsonParser.parseString(new Gson().toJson(Objects.requireNonNull(task.getResult()).getData()));
+                });
     }
 
     private void checkPermission() {
@@ -168,7 +164,11 @@ public class MainActivity extends AppCompatActivity {
         buttonRead.setOnClickListener( v -> {
             if(isExternalStorageReadable()){
                 try(InputStream inputStream0 = new FileInputStream(file)) {
+                    TextView imageDetail = findViewById(R.id.text_view);
+                    imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
+                    findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
                     // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
@@ -193,170 +193,45 @@ public class MainActivity extends AppCompatActivity {
                     Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
-                    buttonVisualSwitcher();
-                    // uploadImage(cvs);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    buttonVisualSwitcher();
-                     imageView1.setImageBitmap(cvs);
+                    imageView1.setImageBitmap(cvs);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                    byte[] imageBytes = byteArrayOutputStream.toByteArray();
+                    String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+                    // Create json request to cloud vision
+                    JsonObject request = new JsonObject();
+                    // Add image to request
+                    JsonObject image = new JsonObject();
+                    image.add("content", new JsonPrimitive(base64encoded));
+                    request.add("image", image);
+                    //Add features to the request
+                    JsonObject feature = new JsonObject();
+                    feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+                    JsonArray features = new JsonArray();
+                    features.add(feature);
+                    request.add("features", features);
+                    JsonObject imageContext = new JsonObject();
+                    JsonArray languageHints = new JsonArray();
+                    languageHints.add("ja");
+                    imageContext.add("languageHints", languageHints);
+                    request.add("imageContext", imageContext);
+                    annotateImage(request.toString())
+                            .addOnCompleteListener(task -> {
+                                if (!task.isSuccessful()) {
+                                    // Task failed with an exception
+                                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                                } else {
+                                    // Task completed successfully
+                                    JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                                    carNumber = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                                    imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+                                }
+                            });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-    }
-
-    private void buttonVisualSwitcher(){
-        switch (STATUS){
-            case "VISIBLE":
-                findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
-                break;
-            case "GONE":
-                findViewById(R.id.toAFKInput).setVisibility(View.GONE);
-                break;
-        }
-    }
-
-    public void uploadImage(Bitmap bitmap){
-        if (bitmap!= null) {
-            // OCR処理実行中であることを伝える。
-            TextView description = findViewById(R.id.text_view);
-            description.setText(R.string.loading_ocr);
-            callCloudVision(bitmap);
-        } else {
-            Log.d(TAG, "Image picker gave us a null image.");
-            Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void callCloudVision(final Bitmap bitmap) {
-
-        // Do the real work in an async task, because we need to use the network anyway
-        try {
-            AsyncTask<Object, Void, String> labelDetectionTask = new LableDetectionTask(this, prepareAnnotationRequest(bitmap));
-            labelDetectionTask.execute();
-        } catch (IOException e) {
-            Log.d(TAG, "failed to make API request because of other IOException " +
-                    e.getMessage());
-        }
-    }
-
-    private Vision.Images.Annotate prepareAnnotationRequest(Bitmap bitmap) throws IOException {
-        HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-
-        VisionRequestInitializer requestInitializer =
-                new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
-                    /**
-                     * We override this so we can inject important identifying fields into the HTTP
-                     * headers. This enables use of a restricted cloud platform API key.
-                     */
-                    @Override
-                    protected void initializeVisionRequest(VisionRequest<?> visionRequest)
-                            throws IOException {
-                        super.initializeVisionRequest(visionRequest);
-
-                        String packageName = getPackageName();
-                        visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
-
-                        String sig = PackageManagerUtils.getSignature(getPackageManager(), packageName);
-
-                        visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
-                    }
-                };
-
-        Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
-        builder.setVisionRequestInitializer(requestInitializer);
-
-        Vision vision = builder.build();
-
-        BatchAnnotateImagesRequest batchAnnotateImagesRequest =
-                new BatchAnnotateImagesRequest();
-        batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
-            AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
-
-            // Add the image
-            Image base64EncodedImage = new Image();
-            // Convert the bitmap to a JPEG
-            // Just in case it's a format that Android understands but Cloud Vision
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
-            byte[] imageBytes = byteArrayOutputStream.toByteArray();
-
-            // Base64 encode the JPEG
-            base64EncodedImage.encodeContent(imageBytes);
-            annotateImageRequest.setImage(base64EncodedImage);
-
-            // add the features we want
-            annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                Feature labelDetection = new Feature();
-                labelDetection.setType("TEXT_DETECTION");
-                labelDetection.setMaxResults(MAX_LABEL_RESULTS);
-                add(labelDetection);
-            }});
-
-            // Add the list of one thing to the request
-            add(annotateImageRequest);
-        }});
-
-        Vision.Images.Annotate annotateRequest =
-                vision.images().annotate(batchAnnotateImagesRequest);
-        // Due to a bug: requests to Vision API containing large images fail when GZipped.
-        annotateRequest.setDisableGZipContent(true);
-        Log.d(TAG, "created Cloud Vision request object, sending request");
-
-        return annotateRequest;
-    }
-
-    private static class LableDetectionTask extends AsyncTask<Object, Void, String> {
-        private final WeakReference<MainActivity> mActivityWeakReference;
-        private Vision.Images.Annotate mRequest;
-
-        LableDetectionTask(MainActivity activity, Vision.Images.Annotate annotate) {
-            mActivityWeakReference = new WeakReference<>(activity);
-            mRequest = annotate;
-        }
-
-        @Override
-        protected String doInBackground(Object... params) {
-            try {
-                Log.d(TAG, "created Cloud Vision request object, sending request");
-                BatchAnnotateImagesResponse response = mRequest.execute();
-                return convertResponseToString(response);
-
-            } catch (GoogleJsonResponseException e) {
-                Log.d(TAG, "failed to make API request because " + e.getContent());
-            } catch (IOException e) {
-                Log.d(TAG, "failed to make API request because of other IOException " +
-                        e.getMessage());
-            }
-            return "Cloud Vision API request failed. Check logs for details.";
-        }
-
-        protected void onPostExecute(String result) {
-            MainActivity activity = mActivityWeakReference.get();
-            if (activity != null && !activity.isFinishing()) {
-                TextView imageDetail = activity.findViewById(R.id.text_view);
-                imageDetail.setText(result);
-            }
-        }
-    }
-
-    private static String convertResponseToString(BatchAnnotateImagesResponse response) {
-        StringBuilder message = new StringBuilder("読み取り結果は以下の通りです。:\n\n");
-
-        TextAnnotation label = response.getResponses().get(0).getFullTextAnnotation();
-        if (label != null) {
-            message.append(label.getText());
-            carNumber = label.getText();
-        } else {
-            message.append("nothing");
-        }
-        STATUS = "VISIBLE";
-        return message.toString();
     }
 
     /* Checks if external storage is available to at least read */
@@ -405,5 +280,24 @@ public class MainActivity extends AppCompatActivity {
         paint.setColorFilter(f);
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
+    }
+
+    private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 }

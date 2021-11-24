@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -15,10 +14,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,7 +35,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -132,28 +130,32 @@ public class PrintPreviewActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String url = "http://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=" + area2 + "&y=" + area;
+        TextView mImageDetails = findViewById(R.id.text_view);
+        // これは正常に動作した。
+        // mImageDetails.setText(Objects.requireNonNull(url));
         JsonNode ApiResponse = getResult(url);
+        mImageDetails.setText(ApiResponse.get(0).toString());
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, Object> map_2 = null;
-        try {
-            // キーがString、値がObjectのマップに読み込みます。
-            map_2 = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>() {
-            });
-        } catch (Exception e) {
-            // エラー
-            e.printStackTrace();
-        }
-        HashMap<String, List<HashMap<String, String>>> codeData_before2 = (HashMap<String, List<HashMap<String, String>>>) Objects.requireNonNull(map_2).get("response");
-        List<HashMap<String, String>> codeData_before1 = codeData_before2.get("location");
-        try {
-            HashMap<String, String> codeData = codeData_before1.get(0);
-            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(80, 500), Color.BLACK, 100, 30, false, 420, 858, false);
-            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(80, 560), Color.BLACK, 100, 15, false, 420, 858, false);
-            bitmap = drawStringonBitmap(bitmap, status, new Point(80, 640), Color.BLACK, 100, 15, false, 420, 858, true);
-        } catch (NullPointerException e) {
-            // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
-            moveTaskToBack(true);
-        }
+//        try {
+//            // キーがString、値がObjectのマップに読み込みます。
+//            map_2 = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>() {
+//            });
+//        } catch (Exception e) {
+//            // エラー
+//            e.printStackTrace();
+//        }
+//        HashMap<String, List<HashMap<String, String>>> codeData_before2 = (HashMap<String, List<HashMap<String, String>>>) Objects.requireNonNull(map_2).get("response");
+//        List<HashMap<String, String>> codeData_before1 = codeData_before2.get("location");
+//        try {
+//            HashMap<String, String> codeData = codeData_before1.get(0);
+//            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(80, 500), Color.BLACK, 100, 30, false, 420, 858, false);
+//            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(80, 560), Color.BLACK, 100, 15, false, 420, 858, false);
+//            bitmap = drawStringonBitmap(bitmap, status, new Point(80, 640), Color.BLACK, 100, 15, false, 420, 858, true);
+//        } catch (NullPointerException e) {
+//            // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
+//            moveTaskToBack(true);
+//        }
     }
 
     public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width, int height, Boolean orikaesi_frag) {
