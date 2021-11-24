@@ -25,6 +25,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -158,7 +159,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //findViewById(R.id.picture).setVisibility(View.VISIBLE);
+        findViewById(R.id.picture).setVisibility(View.VISIBLE);
     }
 
 
