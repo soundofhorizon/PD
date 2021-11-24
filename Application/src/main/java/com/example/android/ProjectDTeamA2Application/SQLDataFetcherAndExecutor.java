@@ -1,6 +1,7 @@
 package com.example.android.ProjectDTeamA2Application;
 
 import android.os.StrictMode;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +139,51 @@ public class SQLDataFetcherAndExecutor {
         return 0;
     }
 
+    protected static Integer return2MatchFineID(Integer fine_amount){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/fine_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        int fineId = 0;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> fineData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("fine_data");
+        for(int i = 0; i < fineData.size(); ++i){
+            if(fineData.get(i).get("fine_amount").toString().equals(fine_amount.toString())){
+                fineId =  (int)fineData.get(i).get("id");
+            }
+        }
+        // ここまで来たら一致0により返却
+        return fineId;
+    }
+
+    protected static Integer return2FineDataTable(Integer fine_id){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/fine_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        int finedata = 0;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String,Object>> fineData = (List<HashMap<String,Object>>) map.get("fine_data");
+        for(int i = 0; i < fineData.size(); ++i){
+            if(fineData.get(i).get("id").toString().equals(fine_id.toString())){
+                finedata = (int)fineData.get(i).get("fine_amount");
+            }
+        }
+        return finedata;
+    }
+
     protected static Integer check2MatchAfkModeDataTable(String afk_mode){
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -157,6 +204,28 @@ public class SQLDataFetcherAndExecutor {
         }
         // ここまで来たら一致0により返却
         return 0;
+    }
+    protected static int result2MatchAfkModeDataTable(String afk_mode) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/afk_mode_data";
+        JsonNode result = getResult(url);
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = null;
+        int AFK_ID = 0;
+        try {
+            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>() {
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<HashMap<String, Object>> AFKInfo = (List<HashMap<String, Object>>) Objects.requireNonNull(map).get("afk_mode_data");
+        for (int i = 0; i < AFKInfo.size(); ++i) {
+            if (AFKInfo.get(i).get("afk_mode").toString().equals(afk_mode)) {
+                AFK_ID = (int) AFKInfo.get(i).get("id");
+            }
+        }
+        return AFK_ID;
     }
 
     protected static Integer check2MatchRegionDataTable(String region_name){
@@ -263,5 +332,20 @@ public class SQLDataFetcherAndExecutor {
 
         return root;
     }
+//    protected static Timestamp resultTimeStamp(){
+//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy);
+//        String url = "https://peteama-apiserver.herokuapp.com/console/api/rest/details/warn_info";
+//        JsonNode result = getResult(url);
+//        ObjectMapper mapper = new ObjectMapper();
+//        HashMap<String, Object> map = null;
+//        try {
+//            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        List<HashMap<String,Integer>> punishData = (List<HashMap<String, Integer>>) Objects.requireNonNull(map).get("punish_data");
+//    return
+//    }
 
 }

@@ -11,7 +11,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="150dp"
-        android:text="@string/AFKwarn1" />
+        android:text="駐停車違反(二輪車・原付)：駐車禁止場所" />
 
     <CheckBox
         android:id="@+id/checkBox2"
@@ -20,7 +20,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="14dp"
-        android:text="@string/AFKwarn2"/>
+        android:text="駐停車違反(二輪車・原付)：駐停車禁止場所" />
 
     <CheckBox
         android:id="@+id/checkBox3"
@@ -29,7 +29,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="15dp"
-        android:text="@string/AFKwarn3"/>
+        android:text="放置駐車違反(二輪車・原付)：駐停禁止場所"/>
 
     <CheckBox
         android:id="@+id/checkBox4"
@@ -38,7 +38,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="@string/AFKwarn4"/>
+        android:text="駐停車違反(二輪車・原付)：駐停車禁止場所"/>
 
     <CheckBox
         android:id="@+id/checkBox5"
@@ -47,7 +47,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="@string/AFKwarn5"/>
+        android:text="駐停車違反(普通車)：駐停車禁止場所"/>
 
     <CheckBox
         android:id="@+id/checkBox6"
@@ -56,8 +56,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
-        android:text="@string/AFKwarn6"/>
-
+        android:text="放置駐車違反(普通車)：駐車禁止場所"/>
     <CheckBox
         android:id="@+id/checkBox7"
         android:layout_width="wrap_content"
@@ -65,8 +64,47 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="@string/AFKwarn7" />
-
+        android:text="駐停車違反(普通車)：駐車禁止場所" />
+    <CheckBox
+        android:id="@+id/checkBox8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="放置駐車違反(普通車)：駐停車禁止場所"/>
+    <CheckBox
+        android:id="@+id/checkBox9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="駐停車違反(大型車)：駐停車禁止場所" />
+    <CheckBox
+        android:id="@+id/checkBox10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="駐停車違反(大型車)：駐車禁止場所" />
+    <CheckBox
+        android:id="@+id/checkBox11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="放置駐車違反(大型車)：駐車禁止場所" />
+    <CheckBox
+        android:id="@+id/checkBox12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="放置駐車違反(大型車)：駐停車禁止場所" />
     <Button
         android:id="@+id/button1"
         android:layout_width="fill_parent"
