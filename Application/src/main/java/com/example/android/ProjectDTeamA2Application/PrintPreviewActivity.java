@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -68,6 +69,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         copyFile();
         MyView();
         imageView.setImageBitmap(bitmap);
+        Insertcar_data();
     }
 
     void addDataToJson(Map<String, String> addData) throws IOException {
@@ -252,6 +254,25 @@ public class PrintPreviewActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         doc.close();
+    }
+    private void Insertcar_data(){
+        //SQLDataFetcherAndExecuter.executeInsertCarDataResult(SQLDataFetcherAndExecuter.fetchMaxIndexOfCarDataTable()+1,"ふ", 460, SQLDataFetcherAndExecuter.check2MatchRegionDataTable("愛媛"),"9001");
+        //check2mach一致0不一致1を返す関数を作る
+        //インサートの関数を作る（↓４つの変数を引数として）
+        String Car_classify_hiragana = "い";
+        int Car_classify_num = 888;
+        int CarID = SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable();
+        int Car_region_id = SQLDataFetcherAndExecutor.check2MatchRegionDataTable("札幌");
+        String Car_number = "9999";
+        int data = SQLDataFetcherAndExecutor.check2MatchCarDataTable(Car_classify_hiragana,Car_classify_num,Car_region_id,Car_number);
+        Log.d("test",String.valueOf(data));
+        if (data == 1){
+            CarID = CarID+1;
+            int Car_data = SQLDataFetcherAndExecutor.executeInsertCarDataResult(CarID,Car_classify_hiragana,Car_classify_num,Car_region_id,Car_number);
+            Log.d("テストです",String.valueOf(Car_data));
+        }else {
+
+        }
     }
 
     private void showPDF() {

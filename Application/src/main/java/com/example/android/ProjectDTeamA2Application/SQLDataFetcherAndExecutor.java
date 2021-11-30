@@ -100,6 +100,7 @@ public class SQLDataFetcherAndExecutor {
         JsonNode result = getResult(url);
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, Object> map = null;
+        int Result = 0;
         try {
             map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
         } catch (Exception e) {
@@ -108,11 +109,13 @@ public class SQLDataFetcherAndExecutor {
         List<HashMap<String,Object>> carData = (List<HashMap<String,Object>>) Objects.requireNonNull(map).get("car_data");
         for(int i = 0; i < carData.size(); ++i){
             if(carData.get(i).get("car_region_id").toString().equals(car_region_id.toString()) && carData.get(i).get("car_classify_num").toString().equals(car_classify_num.toString()) && carData.get(i).get("car_classify_hiragana").toString().equals(car_classify_hiragana) && carData.get(i).get("car_number").toString().equals(car_number)){
-                return (int)carData.get(i).get("id");
+                Result = 0;
+            }else {
+                Result = 1;
             }
         }
         // ここまで来たら一致0により返却
-        return 0;
+        return Result;
     }
 
     protected static Integer check2MatchFineDataTable(Integer fine_amount){
@@ -263,5 +266,4 @@ public class SQLDataFetcherAndExecutor {
 
         return root;
     }
-
 }
