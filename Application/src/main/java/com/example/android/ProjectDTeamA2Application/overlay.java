@@ -43,8 +43,10 @@ public class overlay extends View {
 
 //////////////////////////////////////////ここから
         //center
-        canvas.drawRect(50,600,1050,1100 , paint);
-        canvas.drawLine(50,850,1050,850, mDotPaint);
+        canvas.drawRect(50,500,1050,1000 , paint);
+        canvas.drawLine(50,700,1050,700, mDotPaint);
+        canvas.drawLine(550,500,550,700,mDotPaint);
+        canvas.drawLine(250,700,250,1000,mDotPaint);
 
     }
 
