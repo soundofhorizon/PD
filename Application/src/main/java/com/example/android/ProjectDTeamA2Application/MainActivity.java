@@ -194,44 +194,53 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     canvas.drawBitmap(bmp,srcRect2,destRect2,null);
                     imageView1.setImageBitmap(cvs);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                    byte[] imageBytes = byteArrayOutputStream.toByteArray();
-                    String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
-                    // Create json request to cloud vision
-                    JsonObject request = new JsonObject();
-                    // Add image to request
-                    JsonObject image = new JsonObject();
-                    image.add("content", new JsonPrimitive(base64encoded));
-                    request.add("image", image);
-                    //Add features to the request
-                    JsonObject feature = new JsonObject();
-                    feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
-                    JsonArray features = new JsonArray();
-                    features.add(feature);
-                    request.add("features", features);
-                    JsonObject imageContext = new JsonObject();
-                    JsonArray languageHints = new JsonArray();
-                    languageHints.add("ja");
-                    imageContext.add("languageHints", languageHints);
-                    request.add("imageContext", imageContext);
-                    annotateImage(request.toString())
-                            .addOnCompleteListener(task -> {
-                                if (!task.isSuccessful()) {
-                                    // Task failed with an exception
-                                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
-                                } else {
-                                    // Task completed successfully
-                                    JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                    carNumber = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-                                    imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
-                                }
-                            });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    private void ocrImage(Bitmap cvs){
+        TextView imageDetail = findViewById(R.id.text_view);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+        String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+        // Create json request to cloud vision
+        JsonObject request = new JsonObject();
+        // Add image to request
+        JsonObject image = new JsonObject();
+        image.add("content", new JsonPrimitive(base64encoded));
+        request.add("image", image);
+        //Add features to the request
+        JsonObject feature = new JsonObject();
+        feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+        JsonArray features = new JsonArray();
+        features.add(feature);
+        request.add("features", features);
+        JsonObject imageContext = new JsonObject();
+        JsonArray languageHints = new JsonArray();
+        languageHints.add("ja");
+        imageContext.add("languageHints", languageHints);
+        request.add("imageContext", imageContext);
+        annotateImage(request.toString())
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        // Task failed with an exception
+                        imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                    } else {
+                        try {
+                            // Task completed successfully
+                            JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                            carNumber = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                            imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+                        }catch(IndexOutOfBoundsException e){
+                            e.printStackTrace();
+                            imageDetail.setText("ナンバープレートが確認できませんでした");
+                        }
+                    }
+                });
     }
 
     /* Checks if external storage is available to at least read */
