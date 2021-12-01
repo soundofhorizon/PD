@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void ocrImage(Bitmap cvs){
+    private String ocrImage(Bitmap cvs){
         TextView imageDetail = findViewById(R.id.text_view);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -229,18 +229,20 @@ public class MainActivity extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         // Task failed with an exception
                         imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                        carNumber = "null";
                     } else {
                         try {
                             // Task completed successfully
                             JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
                             carNumber = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-                            imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
                         }catch(IndexOutOfBoundsException e){
                             e.printStackTrace();
                             imageDetail.setText("ナンバープレートが確認できませんでした");
+                            carNumber = "null";
                         }
                     }
                 });
+        return carNumber;
     }
 
     /* Checks if external storage is available to at least read */
