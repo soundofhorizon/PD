@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -63,11 +65,34 @@ public class PrintPreviewActivity extends AppCompatActivity {
         // printPDFボタンを押されたらPDFを発行する。それで終わり。
         findViewById(R.id.printPDF).setOnClickListener(v1 -> {
             outputPDF();
-            moveTaskToBack(true);
+            // 画像bse64データを挿入
+            Resources r = getResources();
+            Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
+            String b64 = encodeTobase64(bmp);
+            Map<String , String> map = new HashMap<>();
+            map.put("image_data",String.valueOf(b64));
+            try {
+                addDataToJson(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //TODO ここでwarn_infoへデータを挿入する
+
+            //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
         });
         copyFile();
         MyView();
         imageView.setImageBitmap(bitmap);
+    }
+
+    private static String encodeTobase64(Bitmap image)
+    {
+        Bitmap immagex=image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.NO_WRAP);
+        return imageEncoded;
     }
 
     void addDataToJson(Map<String, String> addData) throws IOException {
