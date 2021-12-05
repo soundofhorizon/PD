@@ -179,27 +179,43 @@ public class MainActivity extends AppCompatActivity {
                     // rotate 90 degree and attach gray scale
                     Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,4032,3024,mat,true));
                     // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
-                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate, (int) (((float)50)*((float)3024/(float)1080)), (int) (((float)900)*((float)4032/(float)2237)), (int) (((float)960)*((float)3024/(float)1080)), (int) (((float)800)*((float)4032/(float)2237)), null, true);
-                    Rect srcRect1 = new Rect(0,0,2688,720);
-                    Rect srcRect2 = new Rect(0, 720, 2688, 1441);
+                    Bitmap bmp = Bitmap.createBitmap(bmp_rotate, 100, 1450, 2800, 1330, null, true);
+
+                    Rect srcRect1 = new Rect(0,0,1400,500);
+                    //Rect srcRect2 = new Rect(1400, 0, 2800, 500);
+                   // Rect srcRect3 = new Rect(0,500,630,1330);
+                   // Rect srcRect4 = new Rect(630, 500, 2800, 1330);
+
                     // 拡縮を揃えることを考えれば、width 1/2なら、heightも1/2だろう？
                     Rect destRect1 = new Rect(0,0,448,240);
-                    Rect destRect2 = new Rect(0,0,448,240);
+                   // Rect destRect2 = new Rect(0,0,448,240);
+                    //Rect destRect3 = new Rect(0,0,448,240);
+                   // Rect destRect4 = new Rect(0,0,448,240);
                     // offsetは見やすいようにしているが、正直OCR的にはどうなんだろうか。要検証。また、それを言うならHeightは0でいい。canvasとは別に、matを適用した時点のbitmapを表示させればユーザーは満足するだろう。
-                    destRect1.offset(108,996);
-                    destRect2.offset(556,996);
+                    destRect1.offset(556,996);
+                   // destRect2.offset(556,996);
+                   // destRect3.offset(400,400);
+                   // destRect4.offset(556,996);
                     Bitmap cvs = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
 
                     Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
-                    canvas.drawBitmap(bmp,srcRect2,destRect2,null);
-                    imageView1.setImageBitmap(cvs);
+
+                    //canvas.drawBitmap(bmp,srcRect2,destRect2,null);
+                    //canvas.drawBitmap(bmp,srcRect3,destRect3,null);
+                    //canvas.drawBitmap(bmp,srcRect4,destRect4,null);
+                    imageView1.setImageBitmap(cvs);//bmp_rotate
+                    ocrImage(cvs);
+
+
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
     }
+/////ここから
 
     private String ocrImage(Bitmap cvs){
         TextView imageDetail = findViewById(R.id.text_view);
