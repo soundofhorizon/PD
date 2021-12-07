@@ -2,6 +2,7 @@ package com.example.android.ProjectDTeamA2Application;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -46,15 +48,26 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_CAPTURE_IMAGE = 100;
 
     Button button1;
+    Button button2;
+    Button button3;
+    Button button4;
+    Bitmap cvs = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs2 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs3 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs4 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
     ImageView imageView1;
 
     // asset の画像ファイル名
@@ -62,6 +75,12 @@ public class MainActivity extends AppCompatActivity {
     private File file;
 
     private static String carNumber ="nothing";
+    private static String carNumber_region;
+    private static String classify_num;
+    private static String classify_hiragana;
+    private static String number ;
+
+
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -159,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    @SuppressLint("SetTextI18n")
     private void setUpWriteExternalStorage(){
         Button buttonRead = findViewById(R.id.button_read);
         buttonRead.setOnClickListener( v -> {
@@ -182,83 +202,238 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bmp = Bitmap.createBitmap(bmp_rotate, 100, 1450, 2800, 1330, null, true);
 
                     Rect srcRect1 = new Rect(0,0,1400,500);
-                    //Rect srcRect2 = new Rect(1400, 0, 2800, 500);
-                   // Rect srcRect3 = new Rect(0,500,630,1330);
-                   // Rect srcRect4 = new Rect(630, 500, 2800, 1330);
+                    Rect srcRect2 = new Rect(1400, 0, 2800, 500);
+                    Rect srcRect3 = new Rect(0,500,630,1330);
+                    Rect srcRect4 = new Rect(630, 500, 2800, 1330);
 
                     // 拡縮を揃えることを考えれば、width 1/2なら、heightも1/2だろう？
-                    Rect destRect1 = new Rect(0,0,448,240);
-                   // Rect destRect2 = new Rect(0,0,448,240);
-                    //Rect destRect3 = new Rect(0,0,448,240);
-                   // Rect destRect4 = new Rect(0,0,448,240);
-                    // offsetは見やすいようにしているが、正直OCR的にはどうなんだろうか。要検証。また、それを言うならHeightは0でいい。canvasとは別に、matを適用した時点のbitmapを表示させればユーザーは満足するだろう。
-                    destRect1.offset(556,996);
-                   // destRect2.offset(556,996);
-                   // destRect3.offset(400,400);
-                   // destRect4.offset(556,996);
-                    Bitmap cvs = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
+                    Rect destRect1 = new Rect(0,0,1400,500);
+                    Rect destRect2 = new Rect(0, 0, 1400, 500);
+                    Rect destRect3 = new Rect(0,0,630/2,830/2);
+                    Rect destRect4 = new Rect(0, 0, 2170/2, 830/2);
 
-                    Canvas canvas = new Canvas(cvs);
+
+                    Canvas canvas = new Canvas(bmp_rotate);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                    byte[] imageBytes = byteArrayOutputStream.toByteArray();
+                    String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+                    // Create json request to cloud vision
+                    JsonObject request = new JsonObject();
+                    // Add image to request
+                    JsonObject image = new JsonObject();
+                    image.add("content", new JsonPrimitive(base64encoded));
+                    request.add("image", image);
+                    //Add features to the request
+                    JsonObject feature = new JsonObject();
+                    feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+                    JsonArray features = new JsonArray();
+                    features.add(feature);
+                    request.add("features", features);
+                    JsonObject imageContext = new JsonObject();
+                    JsonArray languageHints = new JsonArray();
+                    languageHints.add("ja");
+                    imageContext.add("languageHints", languageHints);
+                    request.add("imageContext", imageContext);
+                    annotateImage(request.toString())
+                            .addOnCompleteListener(task -> {
+                                if (!task.isSuccessful()) {
+                                    // Task failed with an exception
+                                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                                    carNumber_region = "null";
 
-                    //canvas.drawBitmap(bmp,srcRect2,destRect2,null);
-                    //canvas.drawBitmap(bmp,srcRect3,destRect3,null);
-                    //canvas.drawBitmap(bmp,srcRect4,destRect4,null);
-                    imageView1.setImageBitmap(cvs);//bmp_rotate
-                    ocrImage(cvs);
+
+                                } else {
+                                    try {
+                                        // Task completed successfully
+                                        JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber_region + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+
+                                    }catch(IndexOutOfBoundsException e){
+                                        e.printStackTrace();
+                                        imageDetail.setText("ナンバープレートが確認できませんでした1");
+                                        carNumber_region = "null";
+
+                                    }
+                                }
+                            });
+                    //ocrImage(cvs);
+
+                    Canvas canvas2 = new Canvas(cvs2);
+                    canvas2.drawBitmap(bmp,srcRect2,destRect2,null);
+
+                    Canvas canvas3 = new Canvas(cvs3);
+                    canvas3.drawBitmap(bmp,srcRect3,destRect3,null);
+
+                    Canvas canvas4 = new Canvas(cvs4);
+                    canvas4.drawBitmap(bmp,srcRect4,destRect4,null);
 
 
+                    imageView1.setImageBitmap(cvs4);//bmp_rotate
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-    }
-/////ここから
+        button2 = findViewById(R.id.button2);
+        button2.setOnClickListener(v -> {
+            //ocrImage2(cvs2);
+            TextView imageDetail = findViewById(R.id.text_view);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            cvs2.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            // Create json request to cloud vision
+            JsonObject request = new JsonObject();
+            // Add image to request
+            JsonObject image = new JsonObject();
+            image.add("content", new JsonPrimitive(base64encoded));
+            request.add("image", image);
+            //Add features to the request
+            JsonObject feature = new JsonObject();
+            feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+            JsonArray features = new JsonArray();
+            features.add(feature);
+            request.add("features", features);
+            JsonObject imageContext = new JsonObject();
+            JsonArray languageHints = new JsonArray();
+            languageHints.add("ja");
+            imageContext.add("languageHints", languageHints);
+            request.add("imageContext", imageContext);
+            annotateImage(request.toString())
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            // Task failed with an exception
+                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                            classify_num = "null";
 
-    private String ocrImage(Bitmap cvs){
-        TextView imageDetail = findViewById(R.id.text_view);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] imageBytes = byteArrayOutputStream.toByteArray();
-        String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
-        // Create json request to cloud vision
-        JsonObject request = new JsonObject();
-        // Add image to request
-        JsonObject image = new JsonObject();
-        image.add("content", new JsonPrimitive(base64encoded));
-        request.add("image", image);
-        //Add features to the request
-        JsonObject feature = new JsonObject();
-        feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
-        JsonArray features = new JsonArray();
-        features.add(feature);
-        request.add("features", features);
-        JsonObject imageContext = new JsonObject();
-        JsonArray languageHints = new JsonArray();
-        languageHints.add("ja");
-        imageContext.add("languageHints", languageHints);
-        request.add("imageContext", imageContext);
-        annotateImage(request.toString())
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        // Task failed with an exception
-                        imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
-                        carNumber = "null";
-                    } else {
-                        try {
-                            // Task completed successfully
-                            JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                            carNumber = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-                        }catch(IndexOutOfBoundsException e){
-                            e.printStackTrace();
-                            imageDetail.setText("ナンバープレートが確認できませんでした");
-                            carNumber = "null";
+
+                        } else {
+                            try {
+                                // Task completed successfully
+                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                                classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                                imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+
+
+                            }catch(IndexOutOfBoundsException e){
+                                e.printStackTrace();
+                                imageDetail.setText("ナンバープレートが確認できませんでした2");
+                              classify_num = "null";
+
+                            }
                         }
-                    }
-                });
-        return carNumber;
+                    });
+        });
+        button3 = findViewById(R.id.button3);
+        button3.setOnClickListener(v -> {
+            //ocrImage3(cvs3);
+            TextView imageDetail = findViewById(R.id.text_view);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            cvs3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            // Create json request to cloud vision
+            JsonObject request = new JsonObject();
+            // Add image to request
+            JsonObject image = new JsonObject();
+            image.add("content", new JsonPrimitive(base64encoded));
+            request.add("image", image);
+            //Add features to the request
+            JsonObject feature = new JsonObject();
+            feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+            JsonArray features = new JsonArray();
+            features.add(feature);
+            request.add("features", features);
+            JsonObject imageContext = new JsonObject();
+            JsonArray languageHints = new JsonArray();
+            languageHints.add("ja");
+            imageContext.add("languageHints", languageHints);
+            request.add("imageContext", imageContext);
+            annotateImage(request.toString())
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            // Task failed with an exception
+                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                            classify_hiragana = "null";
+
+
+                        } else {
+                            try {
+                                // Task completed successfully
+                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                                classify_hiragana = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+
+                                imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+
+
+
+                            }catch(IndexOutOfBoundsException e){
+                                e.printStackTrace();
+                                imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                                classify_hiragana = "null";
+
+                            }
+                        }
+                    });
+        });
+        button4 = findViewById(R.id.button4);
+        button4.setOnClickListener(v -> {
+            //ocrImage4(cvs4);
+            TextView imageDetail = findViewById(R.id.text_view);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            cvs4.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            String base64encoded = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            // Create json request to cloud vision
+            JsonObject request = new JsonObject();
+            // Add image to request
+            JsonObject image = new JsonObject();
+            image.add("content", new JsonPrimitive(base64encoded));
+            request.add("image", image);
+            //Add features to the request
+            JsonObject feature = new JsonObject();
+            feature.add("type", new JsonPrimitive("TEXT_DETECTION"));
+            JsonArray features = new JsonArray();
+            features.add(feature);
+            request.add("features", features);
+            JsonObject imageContext = new JsonObject();
+            JsonArray languageHints = new JsonArray();
+            languageHints.add("ja");
+            imageContext.add("languageHints", languageHints);
+            request.add("imageContext", imageContext);
+            annotateImage(request.toString())
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            // Task failed with an exception
+                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                            number = "null";
+
+                        } else {
+                            try {
+                                // Task completed successfully
+                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                                number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+
+                                //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+
+                                imageDetail.setText(carNumber_region+","+classify_num+","+classify_hiragana+","+number);
+
+
+                            }catch(IndexOutOfBoundsException e){
+                                e.printStackTrace();
+                                imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                                number = "null";
+
+                            }
+                        }
+                    });
+        });
+
+
     }
 
     /* Checks if external storage is available to at least read */
