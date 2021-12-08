@@ -109,7 +109,10 @@ public class MainActivity extends AppCompatActivity {
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
         toAFKInputButton.setOnClickListener( v -> {
             Map<String , String> map = new HashMap<>();
-            map.put("carNumber", carNumber);
+            map.put("car_region_id", carNumber_region);
+            map.put("car_classify_num", classify_num);
+            map.put("car_classify_hiragana", classify_hiragana);
+            map.put("car_number", number);
             try {
                 addDataToJson(map);
             } catch (IOException e) {
@@ -188,7 +191,11 @@ public class MainActivity extends AppCompatActivity {
                     imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
+                    findViewById(R.id.button2).setVisibility(View.VISIBLE);
+                    findViewById(R.id.button3).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.button4).setVisibility(View.INVISIBLE);
+
+                    findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
                     // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
@@ -327,6 +334,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
+            findViewById(R.id.button2).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button3).setVisibility(View.VISIBLE);
+            findViewById(R.id.button4).setVisibility(View.INVISIBLE);
         });
         button3 = findViewById(R.id.button3);
         button3.setOnClickListener(v -> {
@@ -379,6 +389,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
+            findViewById(R.id.button2).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button3).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button4).setVisibility(View.VISIBLE);
         });
         button4 = findViewById(R.id.button4);
         button4.setOnClickListener(v -> {
@@ -431,6 +444,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
+            findViewById(R.id.button2).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button3).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button4).setVisibility(View.INVISIBLE);
+            findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
         });
 
 
@@ -451,6 +468,9 @@ public class MainActivity extends AppCompatActivity {
     protected void setListeners(){
 
         findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button2).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button3).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button4).setVisibility(View.INVISIBLE);
         findViewById(R.id.toAFKInput).setVisibility(View.INVISIBLE);
         button1.setOnClickListener(v -> {
             // 画面遷移用のintentを作成する。基本、「Intent(前の画面, 後の画面)」で書かれる。前の画面はgetApplication();でいいんじゃないか?
