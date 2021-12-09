@@ -14,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Provides utility logic for getting the app's SHA1 signature. Used with restricted API keys.
- *
  */
 public class PackageManagerUtils {
 

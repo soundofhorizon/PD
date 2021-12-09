@@ -69,8 +69,8 @@ public class PrintPreviewActivity extends AppCompatActivity {
             Resources r = getResources();
             Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
             String b64 = encodeTobase64(bmp);
-            Map<String , String> map = new HashMap<>();
-            map.put("image_data",String.valueOf(b64));
+            Map<String, String> map = new HashMap<>();
+            map.put("image_data", String.valueOf(b64));
             try {
                 addDataToJson(map);
             } catch (IOException e) {
@@ -85,9 +85,8 @@ public class PrintPreviewActivity extends AppCompatActivity {
         imageView.setImageBitmap(bitmap);
     }
 
-    private static String encodeTobase64(Bitmap image)
-    {
-        Bitmap immagex=image;
+    private static String encodeTobase64(Bitmap image) {
+        Bitmap immagex = image;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
@@ -285,8 +284,8 @@ public class PrintPreviewActivity extends AppCompatActivity {
             ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             PdfRenderer pdfRenderer = new PdfRenderer(parcelFileDescriptor);
             PdfRenderer.Page page = pdfRenderer.openPage(0);
-            Bitmap pdf = Bitmap.createBitmap(page.getWidth(),page.getHeight(),Bitmap.Config.ARGB_4444);
-            page.render(pdf,null,null,PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            Bitmap pdf = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
+            page.render(pdf, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
             page.close();
         } catch (IOException e) {
             e.printStackTrace();

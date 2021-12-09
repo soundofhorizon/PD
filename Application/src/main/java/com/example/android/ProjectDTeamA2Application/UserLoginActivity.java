@@ -42,32 +42,30 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         TextView resultTextView = findViewById(R.id.user_login_result);
-        if(user == null){
+        if (user == null) {
             resultTextView.setText("Auth Failed");
-        }else {
+        } else {
             resultTextView.setText("Auth done! login as: " + user.toString());
         }
     }
 
     private void startSignIn() {
         // [START sign_in_custom]
-        mAuth.signInWithEmailAndPassword("b9p31013@bunkyo.ac.jp", "password")
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d("Login", "signInWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        updateUI(user);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("Login", "signInWithEmail:failure", task.getException());
-                        Toast.makeText(UserLoginActivity.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
-                        updateUI(null);
-                    }
-                });
+        mAuth.signInWithEmailAndPassword("b9p31013@bunkyo.ac.jp", "password").addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d("Login", "signInWithEmail:success");
+                FirebaseUser user = mAuth.getCurrentUser();
+                updateUI(user);
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w("Login", "signInWithEmail:failure", task.getException());
+                Toast.makeText(UserLoginActivity.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
+                updateUI(null);
+            }
+        });
     }
-
 
 
     @Override
@@ -106,7 +104,7 @@ public class UserLoginActivity extends AppCompatActivity {
         // sample-insert-punish-data return ID
         // Log.d("insert-punish", String.valueOf(SQLDataFetcherAndExecutor.executeInsertPunishDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable()+1,SQLDataFetcherAndExecutor.check2MatchFineDataTable(10000),SQLDataFetcherAndExecutor.check2MatchAfkModeDataTable("時間制限駐車区間（パーキング・メーター設置区間）における駐車"),"2022-02-22T00:00:11")));
 
-        toMainButton.setOnClickListener( v -> {
+        toMainButton.setOnClickListener(v -> {
             // APIのresponseはdelayがあるので、待ってくれとtextviewで伝えよう
             resultTextView.setText("ユーザーデータを照合中です。しばらくお待ちください・・・");
             // まずは、ユーザーデータを取ってくる。
@@ -120,32 +118,33 @@ public class UserLoginActivity extends AppCompatActivity {
             HashMap<String, Object> map = null;
             try {
                 // キーがString、値がObjectのマップに読み込みます。
-                map = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>(){});
+                map = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>() {
+                });
             } catch (Exception e) {
                 // エラー
                 e.printStackTrace();
             }
-            List<HashMap<String,String>> userData = (List<HashMap<String, String>>) Objects.requireNonNull(map).get("user_data");
+            List<HashMap<String, String>> userData = (List<HashMap<String, String>>) Objects.requireNonNull(map).get("user_data");
 
             // 入力されたuser_idとpassを代入
             EditText inputUserID = findViewById(R.id.user_login_edittext_id);
             EditText inputUserPassword = findViewById(R.id.user_login_edittext_pass);
 
-            for(int i = 0; i < userData.size(); ++i){
+            for (int i = 0; i < userData.size(); ++i) {
                 HashMap<String, String> s = userData.get(i);
-                if(String.valueOf(s.get("user_id")).equals(inputUserID.getText().toString())){
-                    if(String.valueOf(s.get("password")).equals(inputUserPassword.getText().toString())){
+                if (String.valueOf(s.get("user_id")).equals(inputUserID.getText().toString())) {
+                    if (String.valueOf(s.get("password")).equals(inputUserPassword.getText().toString())) {
                         // user_idとpassの一致を確認したためMainに飛ばす。ユーザーIDをjsonに記録
-                        Map<String , String> map_2 = new HashMap<>();
-                        map_2.put("user_id",String.valueOf(inputUserID.getText().toString()));
-                        map_2.put("user_name",String.valueOf(s.get("user_name")));
+                        Map<String, String> map_2 = new HashMap<>();
+                        map_2.put("user_id", String.valueOf(inputUserID.getText().toString()));
+                        map_2.put("user_name", String.valueOf(s.get("user_name")));
                         try {
                             addDataToJson(map_2);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                         startActivity(new Intent(this, MainActivity.class));
-                    }else{
+                    } else {
                         // user_idはあるが、passが合っていないので再入力を促す
                         resultTextView.setText(getString(R.string.wrong_pass));
                         break;
@@ -153,13 +152,13 @@ public class UserLoginActivity extends AppCompatActivity {
                 }
             }
             resultTextView.setText(getString(R.string.wrong_pass));
-        } );
+        });
     }
 
     // この関数は、Jsonの初期化を行うための物である。
-    private void createJson(){
+    private void createJson() {
         // 空HashMapの作成
-        Map<String , String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         String json = null;
@@ -173,7 +172,7 @@ public class UserLoginActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         String fileName = "data.json";
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -181,7 +180,7 @@ public class UserLoginActivity extends AppCompatActivity {
         Log.d("debug", json);
     }
 
-    void  addDataToJson(Map<String, String> addData) throws IOException {
+    void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -192,7 +191,8 @@ public class UserLoginActivity extends AppCompatActivity {
         Map<String, Object> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+            map = mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -209,7 +209,7 @@ public class UserLoginActivity extends AppCompatActivity {
             // エラー
             e.printStackTrace();
         }
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();

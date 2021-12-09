@@ -23,28 +23,25 @@
         android:id="@+id/button_read"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/show_taken_picture"/>
+        android:text="@string/show_taken_picture_1"/>
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/show_taken_picture_2"/>
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/show_taken_picture_3"/>
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/show_taken_picture_4"/>
     <Button
         android:id="@+id/toAFKInput"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/toAFKInput"/>
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ocr2" />
-
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ocr3" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ocr4" />
 </LinearLayout>

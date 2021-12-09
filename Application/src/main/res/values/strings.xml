@@ -23,7 +23,10 @@
     <string name="ImageView">ImageView</string>
     <string name="number_plate">ナンバープレートを取る</string>
     <string name="go_back">GO BACK</string>
-    <string name="show_taken_picture">撮影した写真を表示</string>
+    <string name="show_taken_picture_1">撮影した写真を表示(1/4)</string>
+    <string name="show_taken_picture_2">撮影した写真を表示(2/4)</string>
+    <string name="show_taken_picture_3">撮影した写真を表示(3/4)</string>
+    <string name="show_taken_picture_4">撮影した写真を表示(4/4)</string>
     <string name="description_for_read_image">写真を撮影後、「撮影した写真を表示」ボタンをタップし、写真を表示させてください。</string>
     <string name="image_picker_error">画像データが壊れている可能性があります。再度撮影の上お試しください。</string>
     <string name="loading_ocr">画像読み込み処理実行中…ボタン操作をしないでください。</string>
