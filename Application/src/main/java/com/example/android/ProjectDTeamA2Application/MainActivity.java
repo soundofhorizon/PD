@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     Rect destRect4 = new Rect(0, 0, 2170/2, 830/2);
 
 
-                    Canvas canvas = new Canvas(bmp_rotate);
+                    Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp,srcRect1,destRect1,null);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                     canvas4.drawBitmap(bmp,srcRect4,destRect4,null);
 
 
-                    imageView1.setImageBitmap(cvs4);//bmp_rotate
+                    imageView1.setImageBitmap(bmp_rotate);//bmp_rotate
 
                 } catch (IOException e) {
                     e.printStackTrace();
