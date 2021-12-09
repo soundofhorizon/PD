@@ -22,6 +22,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -172,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void setUpWriteExternalStorage() {
         Button buttonRead = findViewById(R.id.button_read);
+        EditText teacherCarData = findViewById(R.id.editCarData);
         buttonRead.setOnClickListener(v -> {
             if (isExternalStorageReadable()) {
                 try (InputStream inputStream0 = new FileInputStream(file)) {
                     TextView imageDetail = findViewById(R.id.text_view);
-                    imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
                     findViewById(R.id.button2).setVisibility(View.VISIBLE);
@@ -207,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                     Rect destRect3 = new Rect(0, 0, 630 / 2, 830 / 2);
                     Rect destRect4 = new Rect(0, 0, 2170 / 2, 830 / 2);
 
-                    Canvas canvas = new Canvas(bmp_rotate);
+                    Canvas canvas = new Canvas(cvs);
                     canvas.drawBitmap(bmp, srcRect1, destRect1, null);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -230,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
                     languageHints.add("ja");
                     imageContext.add("languageHints", languageHints);
                     request.add("imageContext", imageContext);
+                    imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     annotateImage(request.toString())
                             .addOnCompleteListener(task -> {
                                 if (!task.isSuccessful()) {
@@ -240,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                                     try {
                                         // Task completed successfully
                                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "");
                                         imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber_region + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
 
                                     } catch (IndexOutOfBoundsException e) {
@@ -270,6 +272,10 @@ public class MainActivity extends AppCompatActivity {
 
         button2 = findViewById(R.id.button2);
         button2.setOnClickListener(v -> {
+            if(teacherCarData.getText().toString().length() >= 1){
+                carNumber_region = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             //ocrImage2(cvs2);
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -293,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
             annotateImage(request.toString()).addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
                     // Task failed with an exception
@@ -302,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                        classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                        classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "");
                         imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
@@ -319,7 +326,10 @@ public class MainActivity extends AppCompatActivity {
 
         button3 = findViewById(R.id.button3);
         button3.setOnClickListener(v -> {
-            //ocrImage3(cvs3);
+            if(teacherCarData.getText().toString().length() >= 1){
+                classify_num = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -342,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
             annotateImage(request.toString()).addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
                     // Task failed with an exception
@@ -367,7 +378,10 @@ public class MainActivity extends AppCompatActivity {
         });
         button4 = findViewById(R.id.button4);
         button4.setOnClickListener(v -> {
-            //ocrImage4(cvs4);
+            if(teacherCarData.getText().toString().length() >= 1){
+                classify_hiragana = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs4.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -390,6 +404,7 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
             annotateImage(request.toString()).addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
                     // Task failed with an exception
@@ -399,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                        number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                        number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("|", "1");
                         //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
                         imageDetail.setText(carNumber_region + "," + classify_num + "," + classify_hiragana + "," + number);
                     } catch (IndexOutOfBoundsException e) {

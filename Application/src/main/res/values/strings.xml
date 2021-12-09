@@ -49,4 +49,5 @@
     <string name="title">駐車違反取り締まり用データ登録アプリ</string>
     <string name="to_main_activity">ログイン</string>
     <string name="wrong_pass">ユーザーIDかPasswordが間違えているようです。再度入力してください。</string>
+    <string name="edit_replace_ocr_result">認識が不明瞭の時はこちらに入力してください。</string>
 </resources>

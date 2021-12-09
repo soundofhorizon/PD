@@ -14,6 +14,11 @@
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/editCarData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/edit_replace_ocr_result"/>
     <Button
         android:id="@+id/button1"
         android:layout_width="fill_parent"
