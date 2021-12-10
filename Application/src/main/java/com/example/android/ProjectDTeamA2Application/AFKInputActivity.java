@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AFKInputActivity extends AppCompatActivity {
-    private final CheckBox[] checkBox = new CheckBox[7];
+    private final CheckBox[] checkBox = new CheckBox[12];
 
     void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。

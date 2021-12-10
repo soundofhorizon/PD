@@ -1,10 +1,12 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -15,6 +17,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +40,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,6 +53,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
     String status;
     Bitmap bitmap;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,18 +72,25 @@ public class PrintPreviewActivity extends AppCompatActivity {
             outputPDF();
             // 画像bse64データを挿入
             Resources r = getResources();
-            Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.seal_base);
-            String b64 = encodeTobase64(bmp);
-            Map<String, String> map = new HashMap<>();
-            map.put("image_data", String.valueOf(b64));
-            try {
-                addDataToJson(map);
+            File file = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "pic.jpg");
+            try (InputStream inputStream0 = new FileInputStream(file)) {
+                // mutableなオブジェクトに変換を掛ける
+                Bitmap bmp = BitmapFactory.decodeStream(inputStream0).copy(Bitmap.Config.ARGB_8888, true);
+                String b64 = encodeTobase64(bmp);
+                Map<String, String> map = new HashMap<>();
+                map.put("image_data", String.valueOf(b64));
+                try {
+                    addDataToJson(map);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
             //TODO ここでwarn_infoへデータを挿入する
 
             //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
+            mImageDetails.setText("PDFの発行が完了しました。確認の上、ログイン画面にお戻りください。");
         });
         copyFile();
         MyView();
@@ -152,32 +164,28 @@ public class PrintPreviewActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String url = "http://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=" + area2 + "&y=" + area;
-        TextView mImageDetails = findViewById(R.id.text_view);
-        // これは正常に動作した。
-        // mImageDetails.setText(Objects.requireNonNull(url));
         JsonNode ApiResponse = getResult(url);
-        mImageDetails.setText(ApiResponse.get(0).toString());
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, Object> map_2 = null;
-//        try {
-//            // キーがString、値がObjectのマップに読み込みます。
-//            map_2 = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>() {
-//            });
-//        } catch (Exception e) {
-//            // エラー
-//            e.printStackTrace();
-//        }
-//        HashMap<String, List<HashMap<String, String>>> codeData_before2 = (HashMap<String, List<HashMap<String, String>>>) Objects.requireNonNull(map_2).get("response");
-//        List<HashMap<String, String>> codeData_before1 = codeData_before2.get("location");
-//        try {
-//            HashMap<String, String> codeData = codeData_before1.get(0);
-//            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(80, 500), Color.BLACK, 100, 30, false, 420, 858, false);
-//            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(80, 560), Color.BLACK, 100, 15, false, 420, 858, false);
-//            bitmap = drawStringonBitmap(bitmap, status, new Point(80, 640), Color.BLACK, 100, 15, false, 420, 858, true);
-//        } catch (NullPointerException e) {
-//            // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
-//            moveTaskToBack(true);
-//        }
+        try {
+            // キーがString、値がObjectのマップに読み込みます。
+            map_2 = (HashMap<String, Object>) mapper.readValue(ApiResponse.toString(), new TypeReference<Map<String, Object>>() {
+            });
+        } catch (Exception e) {
+            // エラー
+            e.printStackTrace();
+        }
+        HashMap<String, List<HashMap<String, String>>> codeData_before2 = (HashMap<String, List<HashMap<String, String>>>) Objects.requireNonNull(map_2).get("response");
+        List<HashMap<String, String>> codeData_before1 = codeData_before2.get("location");
+        try {
+            HashMap<String, String> codeData = codeData_before1.get(0);
+            bitmap = drawStringonBitmap(bitmap, time.substring(0, time.length() - 4), new Point(80, 485), Color.BLACK, 100, 30, false, 420, 858, false);
+            bitmap = drawStringonBitmap(bitmap, "〒" + codeData.get("postal") + "  " + codeData.get("prefecture") + codeData.get("city") + codeData.get("town"), new Point(80, 545), Color.BLACK, 100, 15, false, 420, 858, false);
+            bitmap = drawStringonBitmap(bitmap, status, new Point(80, 640), Color.BLACK, 100, 15, false, 420, 858, true);
+        } catch (NullPointerException e) {
+            // 日本以外は住所に対応していないため、ヌルポが出たら、その時点でアプリ終了
+            moveTaskToBack(true);
+        }
     }
 
     public static Bitmap drawStringonBitmap(Bitmap src, String string, Point location, int color, int alpha, int size, boolean underline, int width, int height, Boolean orikaesi_frag) {

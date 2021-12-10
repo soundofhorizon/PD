@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="60dp"
         android:text="駐停車違反(二輪車・原付)：駐車禁止場所" />
 
     <CheckBox
@@ -110,7 +110,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="30dp"
         android:text="@string/AFKsend" />
 
 </LinearLayout>
