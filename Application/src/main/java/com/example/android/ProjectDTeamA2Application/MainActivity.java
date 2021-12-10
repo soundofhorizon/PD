@@ -2,7 +2,6 @@ package com.example.android.ProjectDTeamA2Application;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,9 +22,9 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -48,13 +47,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,26 +59,18 @@ public class MainActivity extends AppCompatActivity {
     Button button2;
     Button button3;
     Button button4;
-    Bitmap cvs = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
-    Bitmap cvs2 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
-    Bitmap cvs3 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
-    Bitmap cvs4 = Bitmap.createBitmap(1080,1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs = Bitmap.createBitmap(1080, 1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs2 = Bitmap.createBitmap(1080, 1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs3 = Bitmap.createBitmap(1080, 1993, Bitmap.Config.ARGB_4444);
+    Bitmap cvs4 = Bitmap.createBitmap(1080, 1993, Bitmap.Config.ARGB_4444);
     ImageView imageView1;
 
-    // asset の画像ファイル名
-    private final String fileName = "pic.jpg";
     private File file;
 
-    private static String carNumber ="nothing";
     private static String carNumber_region;
     private static String classify_num;
     private static String classify_hiragana;
-    private static String number ;
-
-
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-
+    private static String number;
 
     private FirebaseFunctions mFunctions;
 
@@ -97,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
+        // asset の画像ファイル名
+        String fileName = "pic.jpg";
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
 
         // text_view： activity_main.xml の TextView の id
@@ -107,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
         setUpWriteExternalStorage();
 
         Button toAFKInputButton = findViewById(R.id.toAFKInput);
-        toAFKInputButton.setOnClickListener( v -> {
-            Map<String , String> map = new HashMap<>();
+        toAFKInputButton.setOnClickListener(v -> {
+            Map<String, String> map = new HashMap<>();
             map.put("car_region_id", carNumber_region);
             map.put("car_classify_num", classify_num);
             map.put("car_classify_hiragana", classify_hiragana);
@@ -119,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             startActivity(new Intent(this, AFKInputActivity.class));
-        } );
+        });
     }
 
     private Task<JsonElement> annotateImage(String requestJson) {
@@ -143,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void  addDataToJson(Map<String, String> addData) throws IOException {
+    void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -154,7 +143,8 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>() {
+            });
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -171,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             // エラー
             e.printStackTrace();
         }
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -179,16 +169,14 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug_addDatatoJsonだよ", json);
     }
 
-
-
     @SuppressLint("SetTextI18n")
-    private void setUpWriteExternalStorage(){
+    private void setUpWriteExternalStorage() {
         Button buttonRead = findViewById(R.id.button_read);
-        buttonRead.setOnClickListener( v -> {
-            if(isExternalStorageReadable()){
-                try(InputStream inputStream0 = new FileInputStream(file)) {
+        EditText teacherCarData = findViewById(R.id.editCarData);
+        buttonRead.setOnClickListener(v -> {
+            if (isExternalStorageReadable()) {
+                try (InputStream inputStream0 = new FileInputStream(file)) {
                     TextView imageDetail = findViewById(R.id.text_view);
-                    imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
                     findViewById(R.id.button2).setVisibility(View.VISIBLE);
@@ -199,29 +187,28 @@ public class MainActivity extends AppCompatActivity {
                     // TODO: この時点の写真をgyazoにあげる。
                     Matrix mat = new Matrix();
                     mat.postRotate(90);
-                    WindowManager wm = (WindowManager)this.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                    WindowManager wm = (WindowManager) this.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
                     Display display = Objects.requireNonNull(wm).getDefaultDisplay();
                     @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
                     display.getMetrics(displayMetrics);
                     // rotate 90 degree and attach gray scale
-                    Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap,0,0,4032,3024,mat,true));
+                    Bitmap bmp_rotate = toGrayscale(Bitmap.createBitmap(bitmap, 0, 0, 4032, 3024, mat, true));
                     // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
                     Bitmap bmp = Bitmap.createBitmap(bmp_rotate, 100, 1450, 2800, 1330, null, true);
 
-                    Rect srcRect1 = new Rect(0,0,1400,500);
+                    Rect srcRect1 = new Rect(0, 0, 1400, 500);
                     Rect srcRect2 = new Rect(1400, 0, 2800, 500);
-                    Rect srcRect3 = new Rect(0,500,630,1330);
+                    Rect srcRect3 = new Rect(0, 500, 630, 1330);
                     Rect srcRect4 = new Rect(630, 500, 2800, 1330);
 
                     // 拡縮を揃えることを考えれば、width 1/2なら、heightも1/2だろう？
-                    Rect destRect1 = new Rect(0,0,1400,500);
+                    Rect destRect1 = new Rect(0, 0, 1400, 500);
                     Rect destRect2 = new Rect(0, 0, 1400, 500);
-                    Rect destRect3 = new Rect(0,0,630/2,830/2);
-                    Rect destRect4 = new Rect(0, 0, 2170/2, 830/2);
-
+                    Rect destRect3 = new Rect(0, 0, 630 / 2, 830 / 2);
+                    Rect destRect4 = new Rect(0, 0, 2170 / 2, 830 / 2);
 
                     Canvas canvas = new Canvas(cvs);
-                    canvas.drawBitmap(bmp,srcRect1,destRect1,null);
+                    canvas.drawBitmap(bmp, srcRect1, destRect1, null);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     cvs.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
                     byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -243,50 +230,51 @@ public class MainActivity extends AppCompatActivity {
                     languageHints.add("ja");
                     imageContext.add("languageHints", languageHints);
                     request.add("imageContext", imageContext);
+                    imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
                     annotateImage(request.toString())
                             .addOnCompleteListener(task -> {
                                 if (!task.isSuccessful()) {
                                     // Task failed with an exception
                                     imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
                                     carNumber_region = "null";
-
-
                                 } else {
                                     try {
                                         // Task completed successfully
                                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "");
                                         imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber_region + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
 
-                                    }catch(IndexOutOfBoundsException e){
+                                    } catch (IndexOutOfBoundsException e) {
                                         e.printStackTrace();
                                         imageDetail.setText("ナンバープレートが確認できませんでした1");
                                         carNumber_region = "null";
-
                                     }
                                 }
                             });
-                    //ocrImage(cvs);
 
                     Canvas canvas2 = new Canvas(cvs2);
-                    canvas2.drawBitmap(bmp,srcRect2,destRect2,null);
+                    canvas2.drawBitmap(bmp, srcRect2, destRect2, null);
 
                     Canvas canvas3 = new Canvas(cvs3);
-                    canvas3.drawBitmap(bmp,srcRect3,destRect3,null);
+                    canvas3.drawBitmap(bmp, srcRect3, destRect3, null);
 
                     Canvas canvas4 = new Canvas(cvs4);
-                    canvas4.drawBitmap(bmp,srcRect4,destRect4,null);
+                    canvas4.drawBitmap(bmp, srcRect4, destRect4, null);
 
-
-                    imageView1.setImageBitmap(bmp_rotate);//bmp_rotate
+                    imageView1.setImageBitmap(cvs);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
+
         button2 = findViewById(R.id.button2);
         button2.setOnClickListener(v -> {
+            if(teacherCarData.getText().toString().length() >= 1){
+                carNumber_region = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             //ocrImage2(cvs2);
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -310,37 +298,37 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
-            annotateImage(request.toString())
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            // Task failed with an exception
-                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
-                            classify_num = "null";
-
-
-                        } else {
-                            try {
-                                // Task completed successfully
-                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-                                imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
-
-
-                            }catch(IndexOutOfBoundsException e){
-                                e.printStackTrace();
-                                imageDetail.setText("ナンバープレートが確認できませんでした2");
-                              classify_num = "null";
-
-                            }
-                        }
-                    });
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
+            annotateImage(request.toString()).addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    // Task failed with an exception
+                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                    classify_num = "null";
+                } else {
+                    try {
+                        // Task completed successfully
+                        JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                        classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "");
+                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        imageDetail.setText("ナンバープレートが確認できませんでした2");
+                        classify_num = "null";
+                    }
+                }
+            });
+            imageView1.setImageBitmap(cvs2);
             findViewById(R.id.button2).setVisibility(View.INVISIBLE);
             findViewById(R.id.button3).setVisibility(View.VISIBLE);
             findViewById(R.id.button4).setVisibility(View.INVISIBLE);
         });
+
         button3 = findViewById(R.id.button3);
         button3.setOnClickListener(v -> {
-            //ocrImage3(cvs3);
+            if(teacherCarData.getText().toString().length() >= 1){
+                classify_num = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -363,39 +351,36 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
-            annotateImage(request.toString())
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            // Task failed with an exception
-                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
-                            classify_hiragana = "null";
-
-
-                        } else {
-                            try {
-                                // Task completed successfully
-                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                classify_hiragana = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-
-                                imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
-
-
-
-                            }catch(IndexOutOfBoundsException e){
-                                e.printStackTrace();
-                                imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
-                                classify_hiragana = "null";
-
-                            }
-                        }
-                    });
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
+            annotateImage(request.toString()).addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    // Task failed with an exception
+                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                    classify_hiragana = "null";
+                } else {
+                    try {
+                        // Task completed successfully
+                        JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                        classify_hiragana = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                        classify_hiragana = "null";
+                    }
+                }
+            });
+            imageView1.setImageBitmap(cvs3);
             findViewById(R.id.button2).setVisibility(View.INVISIBLE);
             findViewById(R.id.button3).setVisibility(View.INVISIBLE);
             findViewById(R.id.button4).setVisibility(View.VISIBLE);
         });
         button4 = findViewById(R.id.button4);
         button4.setOnClickListener(v -> {
-            //ocrImage4(cvs4);
+            if(teacherCarData.getText().toString().length() >= 1){
+                classify_hiragana = teacherCarData.getText().toString();
+                teacherCarData.setText("");
+            }
             TextView imageDetail = findViewById(R.id.text_view);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs4.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -418,39 +403,32 @@ public class MainActivity extends AppCompatActivity {
             languageHints.add("ja");
             imageContext.add("languageHints", languageHints);
             request.add("imageContext", imageContext);
-            annotateImage(request.toString())
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            // Task failed with an exception
-                            imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
-                            number = "null";
-
-                        } else {
-                            try {
-                                // Task completed successfully
-                                JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-
-                                //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
-
-                                imageDetail.setText(carNumber_region+","+classify_num+","+classify_hiragana+","+number);
-
-
-                            }catch(IndexOutOfBoundsException e){
-                                e.printStackTrace();
-                                imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
-                                number = "null";
-
-                            }
-                        }
-                    });
+            imageDetail.setText("読み取り中です。結果が表示されるまでそのままお待ちください…");
+            annotateImage(request.toString()).addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    // Task failed with an exception
+                    imageDetail.setText("読み取りに失敗しました。エラーは以下の通りです:\n\n" + Objects.requireNonNull(task.getResult()).toString());
+                    number = "null";
+                } else {
+                    try {
+                        // Task completed successfully
+                        JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
+                        number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("|", "1");
+                        //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
+                        imageDetail.setText(carNumber_region + "," + classify_num + "," + classify_hiragana + "," + number);
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                        imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                        number = "null";
+                    }
+                }
+            });
+            imageView1.setImageBitmap(cvs4);
             findViewById(R.id.button2).setVisibility(View.INVISIBLE);
             findViewById(R.id.button3).setVisibility(View.INVISIBLE);
             findViewById(R.id.button4).setVisibility(View.INVISIBLE);
             findViewById(R.id.toAFKInput).setVisibility(View.VISIBLE);
         });
-
-
     }
 
     /* Checks if external storage is available to at least read */
@@ -460,13 +438,12 @@ public class MainActivity extends AppCompatActivity {
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
     }
 
-    protected void findViews(){
+    protected void findViews() {
         button1 = findViewById(R.id.button1);
         imageView1 = findViewById(R.id.imageView1);
     }
 
-    protected void setListeners(){
-
+    protected void setListeners() {
         findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
         findViewById(R.id.button2).setVisibility(View.INVISIBLE);
         findViewById(R.id.button3).setVisibility(View.INVISIBLE);
@@ -487,8 +464,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public Bitmap toGrayscale(Bitmap bmpOriginal)
-    {
+    public Bitmap toGrayscale(Bitmap bmpOriginal) {
         int width, height;
         height = bmpOriginal.getHeight();
         width = bmpOriginal.getWidth();
@@ -502,24 +478,5 @@ public class MainActivity extends AppCompatActivity {
         paint.setColorFilter(f);
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
-    }
-
-    private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 }

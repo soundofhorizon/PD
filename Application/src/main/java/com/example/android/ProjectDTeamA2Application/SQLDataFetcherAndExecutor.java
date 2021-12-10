@@ -250,12 +250,12 @@ public class SQLDataFetcherAndExecutor {
         return 0;
     }
 
-    protected static Integer executeInsertWarnInfoResult(Integer id, String userId, String timestamp, Integer punishId, Double latitude, Double longitude, Integer carDataId, Boolean isPayment, String imageUrl){
+    protected static Integer executeInsertWarnInfoResult(Integer id, String userId, String timestamp, Integer punishId, Double latitude, Double longitude, Integer carDataId, Boolean isPayment, String imageBase64){
         // https://peteama-apiserver.herokuapp.com/api/rest/insert_warn_info_data/:id/:user_id/:timestamp/:punish_id/:latitude/:longitude/:car_data_id/:is_payment/:image_url
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        String url = "https://peteama-apiserver.herokuapp.com/api/rest/insert_warn_info_data/" + id.toString() + "/" + userId + "/" + timestamp + "/" + punishId.toString() + "/" + latitude.toString() + "/" + longitude.toString() + "/" + carDataId.toString() + "/" + isPayment.toString() + "/" + imageUrl;
+        String url = "https://peteama-apiserver.herokuapp.com/api/rest/insert_warn_info_data/" + id.toString() + "/" + userId + "/" + timestamp + "/" + punishId.toString() + "/" + latitude.toString() + "/" + longitude.toString() + "/" + carDataId.toString() + "/" + isPayment.toString() + "/" + imageBase64;
         JsonNode result = getResult(url);
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, Object> map = null;

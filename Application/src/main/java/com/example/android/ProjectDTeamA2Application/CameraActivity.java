@@ -47,7 +47,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
     private LocationManager mLocationManager;
     private String bestProvider;
 
-    void  addDataToJson(Map<String, String> addData) throws IOException {
+    void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -58,7 +58,8 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>() {
+            });
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -75,7 +76,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
             // エラー
             e.printStackTrace();
         }
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -131,7 +132,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
     private void locationStart() {
         try {
             mLocationManager.requestLocationUpdates(bestProvider, 10000, 3, this);
-        }catch(SecurityException e){
+        } catch (SecurityException e) {
             Log.d("Debug", "Location Security Alert");
         }
     }
@@ -150,7 +151,7 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         Log.d("timestamp", String.valueOf(timestamp));
 
-        Map<String , String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("Latitude", String.valueOf(location.getLatitude()));
         map.put("Longitude", String.valueOf(location.getLongitude()));
         map.put("timestamp", String.valueOf(timestamp));
@@ -161,8 +162,6 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         }
         findViewById(R.id.picture).setVisibility(View.VISIBLE);
     }
-
-
 
 
     @Override

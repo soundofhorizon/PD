@@ -1,5 +1,6 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.icu.util.Calendar;
@@ -28,7 +29,7 @@ import java.util.Objects;
 public class AFKInputActivity extends AppCompatActivity {
     private final CheckBox[] checkBox = new CheckBox[7];
 
-    void  addDataToJson(Map<String, String> addData) throws IOException {
+    void addDataToJson(Map<String, String> addData) throws IOException {
         // data.jsonの中身をJsonNode.toString()で全部書きだす。
         Context context = getApplicationContext();
         String fileName = "data.json";
@@ -39,7 +40,8 @@ public class AFKInputActivity extends AppCompatActivity {
         HashMap<String, String> map = new HashMap<>();
         try {
             // キーがString、値がObjectのマップに読み込みます。
-            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>(){});
+            map = (HashMap<String, String>) mapper.readValue(root.toString(), new TypeReference<Map<String, String>>() {
+            });
         } catch (Exception e) {
             // エラー
             e.printStackTrace();
@@ -56,7 +58,7 @@ public class AFKInputActivity extends AppCompatActivity {
             // エラー
             e.printStackTrace();
         }
-        try (FileWriter writer = new FileWriter(file)){
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(Objects.requireNonNull(json));
         } catch (IOException e) {
             e.printStackTrace();
@@ -139,8 +141,8 @@ public class AFKInputActivity extends AppCompatActivity {
             }
 
             Log.d("debug", "放置態様" + arrayList);
-            Map<String , String> map = new HashMap<>();
-            map.put("afk_mode",String.valueOf(arrayList.get(0)));
+            Map<String, String> map = new HashMap<>();
+            map.put("afk_mode", String.valueOf(arrayList.get(0)));
             try {
                 addDataToJson(map);
             } catch (IOException e) {
@@ -148,7 +150,7 @@ public class AFKInputActivity extends AppCompatActivity {
             }
             //ID取得
             int PunishID = SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable();
-            int InsertPunishID = PunishID+1;
+            int InsertPunishID = PunishID + 1;
             //AFK_ID取得
             int AFKInfo_ID = SQLDataFetcherAndExecutor.result2MatchAfkModeDataTable(arrayList.get(0));
             //Fine_amountをもとにID取得
@@ -157,18 +159,18 @@ public class AFKInputActivity extends AppCompatActivity {
             //exp_dateを取得
             String exp_date = resultTimeStamp();
             //PunishDataのinsert
-            SQLDataFetcherAndExecutor.executeInsertPunishDataResult(InsertPunishID,FineID,AFKInfo_ID,exp_date);
+            SQLDataFetcherAndExecutor.executeInsertPunishDataResult(InsertPunishID, FineID, AFKInfo_ID, exp_date);
 
-            Log.d("test",String.valueOf(FineID));
+            Log.d("test", String.valueOf(FineID));
             startActivity(new Intent(this, PrintPreviewActivity.class));
         });
 
         checkBox[1].setChecked(false);
 
-        checkBox[0].setOnClickListener( v -> {
+        checkBox[0].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[0].isChecked();
-            if(check){
+            if (check) {
                 checkBox[1].setChecked(false);
                 checkBox[2].setChecked(false);
                 checkBox[3].setChecked(false);
@@ -179,10 +181,10 @@ public class AFKInputActivity extends AppCompatActivity {
             }
         });
 
-        checkBox[1].setOnClickListener( v -> {
+        checkBox[1].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[1].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[2].setChecked(false);
                 checkBox[3].setChecked(false);
@@ -192,10 +194,10 @@ public class AFKInputActivity extends AppCompatActivity {
             }
         });
 
-        checkBox[2].setOnClickListener( v -> {
+        checkBox[2].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[2].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[1].setChecked(false);
                 checkBox[3].setChecked(false);
@@ -206,10 +208,10 @@ public class AFKInputActivity extends AppCompatActivity {
             }
         });
 
-        checkBox[3].setOnClickListener( v -> {
+        checkBox[3].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[3].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[1].setChecked(false);
                 checkBox[2].setChecked(false);
@@ -220,10 +222,10 @@ public class AFKInputActivity extends AppCompatActivity {
             }
         });
 
-        checkBox[4].setOnClickListener( v -> {
+        checkBox[4].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[4].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[1].setChecked(false);
                 checkBox[2].setChecked(false);
@@ -233,10 +235,10 @@ public class AFKInputActivity extends AppCompatActivity {
             }
         });
 
-        checkBox[5].setOnClickListener( v -> {
+        checkBox[5].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[5].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[1].setChecked(false);
                 checkBox[2].setChecked(false);
@@ -245,10 +247,10 @@ public class AFKInputActivity extends AppCompatActivity {
                 checkBox[6].setChecked(false);
             }
         });
-        checkBox[6].setOnClickListener( v -> {
+        checkBox[6].setOnClickListener(v -> {
             // チェックステータス取得
             boolean check = checkBox[6].isChecked();
-            if(check){
+            if (check) {
                 checkBox[0].setChecked(false);
                 checkBox[1].setChecked(false);
                 checkBox[2].setChecked(false);
@@ -260,16 +262,16 @@ public class AFKInputActivity extends AppCompatActivity {
 
 
     }
-    private String resultTimeStamp(){
+
+    private String resultTimeStamp() {
         Timestamp timestamp;
-        java.security.Timestamp timestamp1 = null;
         long miles = System.currentTimeMillis();
         timestamp = new Timestamp(miles);
         Date date = new Date(timestamp.getTime());
         Calendar cl = Calendar.getInstance();
         cl.setTime(date);
-        cl.add(Calendar.DATE,31);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        cl.add(Calendar.DATE, 31);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String strTime = sdf.format(cl.getTime());
         strTime = strTime + "T00:00:00";
         return strTime;
