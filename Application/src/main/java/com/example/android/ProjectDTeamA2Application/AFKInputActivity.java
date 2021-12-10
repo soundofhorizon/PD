@@ -1,5 +1,6 @@
 package com.example.android.ProjectDTeamA2Application;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.icu.util.Calendar;
@@ -264,14 +265,13 @@ public class AFKInputActivity extends AppCompatActivity {
 
     private String resultTimeStamp() {
         Timestamp timestamp;
-        java.security.Timestamp timestamp1 = null;
         long miles = System.currentTimeMillis();
         timestamp = new Timestamp(miles);
         Date date = new Date(timestamp.getTime());
         Calendar cl = Calendar.getInstance();
         cl.setTime(date);
         cl.add(Calendar.DATE, 31);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String strTime = sdf.format(cl.getTime());
         strTime = strTime + "T00:00:00";
         return strTime;

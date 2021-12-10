@@ -37,16 +37,6 @@ public class UserLoginActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-
-    private void updateUI(FirebaseUser user) {
-        TextView resultTextView = findViewById(R.id.user_login_result);
-        if (user == null) {
-            resultTextView.setText("Auth Failed");
-        } else {
-            resultTextView.setText("Auth done! login as: " + user.toString());
-        }
     }
 
     private void startSignIn() {
@@ -56,13 +46,11 @@ public class UserLoginActivity extends AppCompatActivity {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("Login", "signInWithEmail:success");
                 FirebaseUser user = mAuth.getCurrentUser();
-                updateUI(user);
             } else {
                 // If sign in fails, display a message to the user.
                 Log.w("Login", "signInWithEmail:failure", task.getException());
                 Toast.makeText(UserLoginActivity.this, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();
-                updateUI(null);
             }
         });
     }
@@ -110,7 +98,6 @@ public class UserLoginActivity extends AppCompatActivity {
             // まずは、ユーザーデータを取ってくる。
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-            String url = "https://peteama-apiserver.herokuapp.com/api/rest/user_data";
 
             // REST APIに問い合わせを行い、user_dataのjsonを取得する。
             JsonNode ApiResponse = SQLDataFetcherAndExecutor.userDataFetchResult();
@@ -130,13 +117,13 @@ public class UserLoginActivity extends AppCompatActivity {
             EditText inputUserID = findViewById(R.id.user_login_edittext_id);
             EditText inputUserPassword = findViewById(R.id.user_login_edittext_pass);
 
-            for (int i = 0; i < userData.size(); ++i) {
+            for (int i = 0; i < Objects.requireNonNull(userData).size(); ++i) {
                 HashMap<String, String> s = userData.get(i);
                 if (String.valueOf(s.get("user_id")).equals(inputUserID.getText().toString())) {
                     if (String.valueOf(s.get("password")).equals(inputUserPassword.getText().toString())) {
                         // user_idとpassの一致を確認したためMainに飛ばす。ユーザーIDをjsonに記録
                         Map<String, String> map_2 = new HashMap<>();
-                        map_2.put("user_id", String.valueOf(inputUserID.getText().toString()));
+                        map_2.put("user_id", inputUserID.getText().toString());
                         map_2.put("user_name", String.valueOf(s.get("user_name")));
                         try {
                             addDataToJson(map_2);

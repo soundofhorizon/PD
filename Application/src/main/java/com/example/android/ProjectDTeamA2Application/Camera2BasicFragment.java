@@ -480,10 +480,6 @@ public class Camera2BasicFragment extends Fragment
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-//        if(requestCode == 2000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            // 位置情報取得開始
-//            startUpdateLocation();
-//        }
     }
 
     /**

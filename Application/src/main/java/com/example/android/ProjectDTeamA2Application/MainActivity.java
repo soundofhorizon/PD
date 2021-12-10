@@ -65,11 +65,8 @@ public class MainActivity extends AppCompatActivity {
     Bitmap cvs4 = Bitmap.createBitmap(1080, 1993, Bitmap.Config.ARGB_4444);
     ImageView imageView1;
 
-    // asset の画像ファイル名
-    private final String fileName = "pic.jpg";
     private File file;
 
-    private static String carNumber = "nothing";
     private static String carNumber_region;
     private static String classify_num;
     private static String classify_hiragana;
@@ -87,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
         Context context = getApplicationContext();
         // 画像を置く外部ストレージ
+        // asset の画像ファイル名
+        String fileName = "pic.jpg";
         file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
 
         // text_view： activity_main.xml の TextView の id
@@ -479,24 +478,5 @@ public class MainActivity extends AppCompatActivity {
         paint.setColorFilter(f);
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
-    }
-
-    private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 }

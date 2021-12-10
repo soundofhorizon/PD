@@ -86,12 +86,10 @@ public class PrintPreviewActivity extends AppCompatActivity {
     }
 
     private static String encodeTobase64(Bitmap image) {
-        Bitmap immagex = image;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        String imageEncoded = Base64.encodeToString(b, Base64.NO_WRAP);
-        return imageEncoded;
+        return Base64.encodeToString(b, Base64.NO_WRAP);
     }
 
     void addDataToJson(Map<String, String> addData) throws IOException {
