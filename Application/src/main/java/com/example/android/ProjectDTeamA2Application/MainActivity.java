@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     // and, trimming. widthとheightは計算できるが、まぁ、いいでしょう(ほんとか？)
                     Bitmap bmp = Bitmap.createBitmap(bmp_rotate, 100, 1450, 2800, 1330, null, true);
 
-                    Rect srcRect1 = new Rect(0, 0, 1400, 500);
+                    Rect srcRect1 = new Rect(0, 0, 1850, 500);
                     Rect srcRect2 = new Rect(1400, 0, 2800, 500);
                     Rect srcRect3 = new Rect(0, 500, 630, 1330);
                     Rect srcRect4 = new Rect(630, 500, 2800, 1330);
