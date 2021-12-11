@@ -31,7 +31,8 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private File file;
     private FirebaseAuth mAuth;
-
+    String UserId ;
+    String UserName ;
     @Override
     public void onStart() {
         super.onStart();
@@ -127,6 +128,8 @@ public class UserLoginActivity extends AppCompatActivity {
                         map_2.put("user_name", String.valueOf(s.get("user_name")));
                         try {
                             addDataToJson(map_2);
+                            UserId = map_2.get("user_id");
+                            UserName = map_2.get("user_name");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
