@@ -57,11 +57,8 @@ public class PrintPreviewActivity extends AppCompatActivity {
     String car_classify_num;
     String car_region_id;
     Boolean payment = false;
-    UserLoginActivity userLoginActivity = new UserLoginActivity();
-    String UserLogin = userLoginActivity.UserId;
-    String UserName = userLoginActivity.UserName ;
-    int id = SQLDataFetcherAndExecutor.fetchMaxIndexOfWarnInfoTable()+1;
-
+    String userId;
+    String punishId;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -87,29 +84,28 @@ public class PrintPreviewActivity extends AppCompatActivity {
                 // mutableなオブジェクトに変換を掛ける
                 Bitmap bmp = BitmapFactory.decodeStream(inputStream0).copy(Bitmap.Config.ARGB_8888, true);
                 String b64 = encodeTobase64(bmp);
-                Map<String, String> map = new HashMap<>();
-                map.put("image_data", String.valueOf(b64));
-                try {
-                    addDataToJson(map);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                Log.d("test3", b64);
+                //TODO ここでwarn_infoへデータを挿入する
+                String User_id = userId;
+                String TimeStamp = time.replace(" ", "T");
+                Double lat = Double.parseDouble(area);
+                Double lon = Double.parseDouble(area2);
+                int Id = SQLDataFetcherAndExecutor.fetchMaxIndexOfWarnInfoTable()+1;
+                String PunishID = punishId;
+                int regionID = SQLDataFetcherAndExecutor.check2MatchRegionDataTable(car_region_id);
+                int CarDataID = SQLDataFetcherAndExecutor.check2MatchCarDataTable(car_classify_hiragana, Integer.valueOf(car_classify_num),regionID,Number);
+                if(CarDataID == 0){
+                    CarDataID = SQLDataFetcherAndExecutor.executeInsertCarDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable()+1,car_classify_hiragana, Integer.valueOf(car_classify_num),regionID,Number);
                 }
+                //WarnInfoInsert
+                Log.d("test", Id+","+User_id+","+TimeStamp+","+PunishID+","+lat+","+lon+","+CarDataID+","+payment+","+b64);
+                int a = SQLDataFetcherAndExecutor.executeInsertWarnInfoResult(Id,User_id,TimeStamp,PunishID,lat,lon,CarDataID,payment,b64);
+                //       int CarDataId = Insertcar_data();
+                //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
+                mImageDetails.setText("PDFの発行が完了しました。確認の上、ログイン画面にお戻りください。");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //TODO ここでwarn_infoへデータを挿入する
-            String User_id = UserLogin;
-            String TimeStamp = time;
-            Double lat = Double.parseDouble(area);
-            Double lon = Double.parseDouble(area2);
-            int Id = SQLDataFetcherAndExecutor.fetchMaxIndexOfWarnInfoTable()+1;
-            int PunishID = SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable()+1;
-            int CarDataID = SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable()+1;
-            //WarnInfoInsert
-            int a = SQLDataFetcherAndExecutor.executeInsertWarnInfoResult(Id,User_id,TimeStamp,PunishID,lat,lon,CarDataID,payment,"image_base64");
-     //       int CarDataId = Insertcar_data();
-            //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
-            mImageDetails.setText("PDFの発行が完了しました。確認の上、ログイン画面にお戻りください。");
         });
         copyFile();
         MyView();
@@ -122,7 +118,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] b = baos.toByteArray();
-        return Base64.encodeToString(b, Base64.NO_WRAP);
+        return Base64.encodeToString(b, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
     }
 
     void addDataToJson(Map<String, String> addData) throws IOException {
@@ -150,10 +146,12 @@ public class PrintPreviewActivity extends AppCompatActivity {
         try {
             // mapをjson文字列に変換
             json = mapper.writeValueAsString(map);
-            Number = map.get("number");
-            car_classify_hiragana = map.get("classify_hiragana");
-            car_classify_num = map.get("classify_num");
-            car_region_id = map.get("carNumber_region");
+            Number = map.get("car_number");
+            car_classify_hiragana = map.get("car_classify_hiragana");
+            car_classify_num = map.get("car_classify_num");
+            car_region_id = map.get("car_region_id");
+            userId= map.get("user_id");
+            punishId= map.get("punish_id");
         } catch (Exception e) {
             // エラー
             e.printStackTrace();

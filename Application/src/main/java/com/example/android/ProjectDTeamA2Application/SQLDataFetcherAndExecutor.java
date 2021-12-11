@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,12 +249,13 @@ public class SQLDataFetcherAndExecutor {
         return 0;
     }
 
-    protected static Integer executeInsertWarnInfoResult(Integer id, String userId, String timestamp, Integer punishId, Double latitude, Double longitude, Integer carDataId, Boolean isPayment, String imageBase64){
+    protected static Integer executeInsertWarnInfoResult(Integer id, String userId, String timestamp, String punishId, Double latitude, Double longitude, Integer carDataId, Boolean isPayment, String imageBase64){
         // https://peteama-apiserver.herokuapp.com/api/rest/insert_warn_info_data/:id/:user_id/:timestamp/:punish_id/:latitude/:longitude/:car_data_id/:is_payment/:image_url
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         String url = "https://peteama-apiserver.herokuapp.com/api/rest/insert_warn_info_data/" + id.toString() + "/" + userId + "/" + timestamp + "/" + punishId.toString() + "/" + latitude.toString() + "/" + longitude.toString() + "/" + carDataId.toString() + "/" + isPayment.toString() + "/" + imageBase64;
+        Log.d("test2", url);
         JsonNode result = getResult(url);
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, Object> map = null;
@@ -332,20 +332,4 @@ public class SQLDataFetcherAndExecutor {
 
         return root;
     }
-//    protected static Timestamp resultTimeStamp(){
-//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//        StrictMode.setThreadPolicy(policy);
-//        String url = "https://peteama-apiserver.herokuapp.com/console/api/rest/details/warn_info";
-//        JsonNode result = getResult(url);
-//        ObjectMapper mapper = new ObjectMapper();
-//        HashMap<String, Object> map = null;
-//        try {
-//            map = (HashMap<String, Object>) mapper.readValue(result.toString(), new TypeReference<Map<String, Object>>(){});
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        List<HashMap<String,Integer>> punishData = (List<HashMap<String, Integer>>) Objects.requireNonNull(map).get("punish_data");
-//    return
-//    }
-
 }

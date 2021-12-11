@@ -31,8 +31,7 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private File file;
     private FirebaseAuth mAuth;
-    String UserId ;
-    String UserName ;
+
     @Override
     public void onStart() {
         super.onStart();
@@ -69,31 +68,7 @@ public class UserLoginActivity extends AppCompatActivity {
         resultTextView.setText("ユーザーデータを照合には少々時間がかかります。\nログインボタンは一度のみタップしてください。");
         Button toMainButton = findViewById(R.id.to_login_and_main_button);
 
-        // 突っ込んでみる！！！！！！！！！
-        // todo: これは読んで。それぞれ型に合わせて引数にデータを代入します。ただ、timestampは"yyyy-mm-ddTHH:MM:SS"の形式でしか入りません。なので、最初に文字列の操作が必要です。あとは各種表示された引数名に従ってください
-        // responseCode:200（成功）を以下で確認する。
-        // 上記executeInsertWarnInfoResultは返り値に、引数の最初のidを返却する。つまり、上記であれば11が返るわけである。よって、その一致を確かめる事で正常にデータが挿入できたことを立証したことになる。
-        // 各種insertする際のid引数はuniqueである必要があるため、fetchMaxIndexOfCarDataTable()等で、現在テーブルにある最大のindexの値を取得した上で+1して引数に挿入してください
-
-        // sample-region return ID
-        // Log.d("find_region", String.valueOf(SQLDataFetcherAndExecutor.check2MatchRegionDataTable("つくば")));
-
-        // sample-fine return ID
-        // Log.d("find_fine", String.valueOf(SQLDataFetcherAndExecutor.check2MatchFineDataTable(10000)));
-
-        // sample-afk-mode return ID
-        // Log.d("find_afk", String.valueOf(SQLDataFetcherAndExecutor.check2MatchAfkModeDataTable("停車及び駐車を禁止する場所")));
-
-        // sample-insert-warn-info return ID
-        // Log.d("insert", String.valueOf(SQLDataFetcherAndExecutor.executeInsertWarnInfoResult(11,"1", "2020-09-28T11:11:11",2,37.69790673216146, 133.41260169608,1,false, "6b78ecc860e1a91752074d95b7227da4")));
-
-        // sample-insert-car-data return ID
-        // Log.d("insert_car_data", String.valueOf(SQLDataFetcherAndExecutor.executeInsertCarDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable()+1,"ふ", 460, SQLDataFetcherAndExecutor.check2MatchRegionDataTable("愛媛"),"9001")));
-
-        // sample-insert-punish-data return ID
-        // Log.d("insert-punish", String.valueOf(SQLDataFetcherAndExecutor.executeInsertPunishDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable()+1,SQLDataFetcherAndExecutor.check2MatchFineDataTable(10000),SQLDataFetcherAndExecutor.check2MatchAfkModeDataTable("時間制限駐車区間（パーキング・メーター設置区間）における駐車"),"2022-02-22T00:00:11")));
-
-        toMainButton.setOnClickListener(v -> {
+               toMainButton.setOnClickListener(v -> {
             // APIのresponseはdelayがあるので、待ってくれとtextviewで伝えよう
             resultTextView.setText("ユーザーデータを照合中です。しばらくお待ちください・・・");
             // まずは、ユーザーデータを取ってくる。
@@ -128,8 +103,6 @@ public class UserLoginActivity extends AppCompatActivity {
                         map_2.put("user_name", String.valueOf(s.get("user_name")));
                         try {
                             addDataToJson(map_2);
-                            UserId = map_2.get("user_id");
-                            UserName = map_2.get("user_name");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     } catch (IndexOutOfBoundsException e) {
                                         e.printStackTrace();
-                                        imageDetail.setText("ナンバープレートが確認できませんでした1");
+                                        imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
                                         carNumber_region = "null";
                                     }
                                 }
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                         imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「撮影した写真を表示(3/4)」ボタンを押してください。");
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
-                        imageDetail.setText("ナンバープレートが確認できませんでした2");
+                        imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
                         classify_num = "null";
                     }
                 }
@@ -383,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
                         imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n 「撮影した写真を表示(4/4)」ボタンを押してください。");
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
-                        imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                        imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
                         classify_hiragana = "null";
                     }
                 }
@@ -435,12 +435,12 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                        number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("|", "1").replace("\n", "").replace("·", "0").replace("-", "");
+                        number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("|", "1").replace("\n", "").replace("·", "0").replace("-", "").replace("I", "1");
                         //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
                         imageDetail.setText(carNumber_region + "," + classify_num + "," + classify_hiragana + "," + number);
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
-                        imageDetail.setText(Objects.requireNonNull(task.getResult()).getAsJsonArray().toString());
+                        imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
                         number = "null";
                     }
                 }

@@ -140,14 +140,6 @@ public class AFKInputActivity extends AppCompatActivity {
                 Fine_amount = 12000;
             }
 
-            Log.d("debug", "放置態様" + arrayList);
-            Map<String, String> map = new HashMap<>();
-            map.put("afk_mode", String.valueOf(arrayList.get(0)));
-            try {
-                addDataToJson(map);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             //ID取得
             int PunishID = SQLDataFetcherAndExecutor.fetchMaxIndexOfPunishDataTable();
             int InsertPunishID = PunishID + 1;
@@ -161,7 +153,16 @@ public class AFKInputActivity extends AppCompatActivity {
             //PunishDataのinsert
             SQLDataFetcherAndExecutor.executeInsertPunishDataResult(InsertPunishID, FineID, AFKInfo_ID, exp_date);
 
-            Log.d("test", String.valueOf(FineID));
+
+            Log.d("debug", "放置態様" + arrayList);
+            Map<String, String> map = new HashMap<>();
+            map.put("afk_mode", String.valueOf(arrayList.get(0)));
+            map.put("punish_id", String.valueOf(FineID));
+            try {
+                addDataToJson(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             startActivity(new Intent(this, PrintPreviewActivity.class));
         });
 
