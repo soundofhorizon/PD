@@ -81,8 +81,6 @@ public class CameraActivity extends AppCompatActivity implements LocationListene
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Log.d("debug_addDatatoJson", json);
     }
 
 

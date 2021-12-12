@@ -50,4 +50,5 @@
     <string name="to_main_activity">ログイン</string>
     <string name="wrong_pass">ユーザーIDかPasswordが間違えているようです。再度入力してください。</string>
     <string name="edit_replace_ocr_result">認識が不明瞭の時はこちらに入力してください。</string>
+    <string name="return2">写真撮影準備画面に戻る</string>
 </resources>

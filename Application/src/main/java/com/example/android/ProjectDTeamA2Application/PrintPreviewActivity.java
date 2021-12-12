@@ -2,6 +2,7 @@ package com.example.android.ProjectDTeamA2Application;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,13 +12,12 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfDocument;
-import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -64,6 +64,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        findViewById(R.id.returnMain).setVisibility(View.INVISIBLE);
         // 本来ならAsyncTaskに投げ込むべきAPIリクエストであるが、まぁ面倒臭いので制限を壊す
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -98,20 +99,36 @@ public class PrintPreviewActivity extends AppCompatActivity {
                     CarDataID = SQLDataFetcherAndExecutor.executeInsertCarDataResult(SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable()+1,car_classify_hiragana, Integer.valueOf(car_classify_num),regionID,Number);
                 }
                 //WarnInfoInsert
-                Log.d("test", Id+","+User_id+","+TimeStamp+","+PunishID+","+lat+","+lon+","+CarDataID+","+payment+","+b64);
-                int a = SQLDataFetcherAndExecutor.executeInsertWarnInfoResult(Id,User_id,TimeStamp,PunishID,lat,lon,CarDataID,payment,b64);
-                //       int CarDataId = Insertcar_data();
-                //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
-                mImageDetails.setText("PDFの発行が完了しました。確認の上、ログイン画面にお戻りください。");
+                String jsonString = "{\"query\":\"mutation{insert_warn_info(objects:[{id:"+Id+",user_id:\\\""+User_id+"\\\",timestamp:\\\""+TimeStamp+"\\\",punish_id:"+PunishID+",latitude:"+lat+",longitude:"+lon+",car_data_id:"+CarDataID+",is_payment:"+payment+",image_base64:\\\""+ b64 + "\\\"}]){returning{id}}}\"}";
+                String returning = HttpsJson.post("https://peteama-apiserver.herokuapp.com/v1/graphql", jsonString);
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(returning);
+                HashMap<String, Object> map = null;
+                try {
+                    map = (HashMap<String, Object>) mapper.readValue(root.toString(), new TypeReference<Map<String, Object>>(){});
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                HashMap<String,Object> warnInfoData = (HashMap<String, Object>) Objects.requireNonNull(map).get("data");
+                HashMap<String,Object> warnInfoData_2 = (HashMap<String, Object>) warnInfoData.get("insert_warn_info");
+                List<HashMap<String,Integer>> now = (List<HashMap<String, Integer>>) warnInfoData_2.get("returning");
+                if(now.get(0).get("id") == Id){
+                    //TODO 挿入が完了したら、完了した旨を送信し、ログイン画面に差し戻す用のボタンを追加
+                    mImageDetails.setText("PDFの発行が完了しました。確認の上、ログイン画面にお戻りください。");
+                    findViewById(R.id.returnMain).setVisibility(View.VISIBLE);
+                }else{
+                    mImageDetails.setText("warn_info table insert error。");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+        findViewById(R.id.returnMain).setOnClickListener(v1 -> {
+            startActivity(new Intent(this, MainActivity.class));
+        });
         copyFile();
         MyView();
         imageView.setImageBitmap(bitmap);
-        Insertcar_data();
-
     }
 
     private static String encodeTobase64(Bitmap image) {
@@ -305,36 +322,5 @@ public class PrintPreviewActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         doc.close();
-    }
-    private void Insertcar_data(){
-        //SQLDataFetcherAndExecuter.executeInsertCarDataResult(SQLDataFetcherAndExecuter.fetchMaxIndexOfCarDataTable()+1,"ふ", 460, SQLDataFetcherAndExecuter.check2MatchRegionDataTable("愛媛"),"9001");
-        //check2mach一致0不一致1を返す関数を作る
-        //インサートの関数を作る（↓４つの変数を引数として）
-        //jsonから値をとる
-        String Car_number = Number;
-        String Car_classify_hiragana = car_classify_hiragana;
-        int Car_classify_num = Integer.parseInt(car_classify_num);
-        int CarID = SQLDataFetcherAndExecutor.fetchMaxIndexOfCarDataTable();
-        int Car_region_id = SQLDataFetcherAndExecutor.check2MatchRegionDataTable(car_region_id);
-        int data = SQLDataFetcherAndExecutor.check2MatchCarDataTable(Car_classify_hiragana,Car_classify_num,Car_region_id,Car_number);
-        Log.d("test",String.valueOf(data));
-        if (data == 0){
-            CarID = CarID+1;
-            int Car_data = SQLDataFetcherAndExecutor.executeInsertCarDataResult(CarID,Car_classify_hiragana,Car_classify_num,Car_region_id,Car_number);
-            Log.d("テストです",String.valueOf(Car_data));
-        }
-    }
-    private void showPDF() {
-        File file = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "seal.jpg");
-        try {
-            ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            PdfRenderer pdfRenderer = new PdfRenderer(parcelFileDescriptor);
-            PdfRenderer.Page page = pdfRenderer.openPage(0);
-            Bitmap pdf = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
-            page.render(pdf, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-            page.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

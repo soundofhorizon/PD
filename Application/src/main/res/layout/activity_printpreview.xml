@@ -23,5 +23,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/printPDF"/>
-
+    <Button
+        android:id="@+id/returnMain"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/return2"/>
 </LinearLayout>

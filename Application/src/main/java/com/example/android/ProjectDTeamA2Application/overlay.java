@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +41,6 @@ public class overlay extends View {
         @SuppressLint("DrawAllocation") DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
 
-//////////////////////////////////////////ここから
         //center
         canvas.drawRect(50, 500, 1050, 1000, paint);
         canvas.drawLine(50, 700, 1050, 700, mDotPaint);
@@ -50,11 +48,6 @@ public class overlay extends View {
         canvas.drawLine(250, 700, 250, 1000, mDotPaint);
 
     }
-
-    public int dp2px(float dp, Context context) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
-    }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {

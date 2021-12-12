@@ -63,8 +63,6 @@ public class AFKInputActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Log.d("debug_addDatatoJson", json);
     }
 
 
@@ -153,8 +151,6 @@ public class AFKInputActivity extends AppCompatActivity {
             //PunishDataのinsert
             SQLDataFetcherAndExecutor.executeInsertPunishDataResult(InsertPunishID, FineID, AFKInfo_ID, exp_date);
 
-
-            Log.d("debug", "放置態様" + arrayList);
             Map<String, String> map = new HashMap<>();
             map.put("afk_mode", String.valueOf(arrayList.get(0)));
             map.put("punish_id", String.valueOf(FineID));

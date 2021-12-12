@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -175,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("debug_addDatatoJsonだよ", json);
     }
 
     @SuppressLint("SetTextI18n")
@@ -185,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
         buttonRead.setOnClickListener(v -> {
             if (isExternalStorageReadable()) {
                 try (InputStream inputStream0 = new FileInputStream(file)) {
-                    teacherCarData.setVisibility(View.VISIBLE);
                     TextView imageDetail = findViewById(R.id.text_view);
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream0);
                     findViewById(R.id.button_read).setVisibility(View.INVISIBLE);
@@ -251,9 +248,9 @@ public class MainActivity extends AppCompatActivity {
                                     try {
                                         // Task completed successfully
                                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "").replace("°", "").replace("\n", "");
-                                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber_region + "\n\n 「撮影した写真を表示(2/4)」ボタンを押してください。");
-
+                                        carNumber_region = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "").replace("°", "").replace("\n", "").replace("〇", "").replace(":","").replace("：","");
+                                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + carNumber_region + "\n\n「撮影した写真を表示(2/4)」ボタンを押してください。\n読み取り結果に誤りがあれば修正してください。");
+                                        teacherCarData.setVisibility(View.VISIBLE);
                                     } catch (IndexOutOfBoundsException e) {
                                         e.printStackTrace();
                                         imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
@@ -290,8 +287,7 @@ public class MainActivity extends AppCompatActivity {
                 carNumber_region = teacherCarData.getText().toString();
                 teacherCarData.setText("");
             }
-            //ocrImage2(cvs2);
-
+            teacherCarData.setVisibility(View.INVISIBLE);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs2.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
             byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -323,8 +319,9 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
-                        classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "").replace("°", "").replace("\n", "");
-                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n 「撮影した写真を表示(3/4)」ボタンを押してください。");
+                        classify_num = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("*", "").replace("・", "").replace("°", "").replace("\n", "").replace("〇", "").replace(":","").replace("：","");
+                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_num + "\n\n「撮影した写真を表示(3/4)」ボタンを押してください。\n読み取り結果に誤りがあれば修正してください。");
+                        teacherCarData.setVisibility(View.VISIBLE);
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                         imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
@@ -343,11 +340,13 @@ public class MainActivity extends AppCompatActivity {
             TextView imageDetail = findViewById(R.id.text_view);
             if(classify_num.equals("null")&&teacherCarData.getText().toString().length() == 0){
                 imageDetail.setText("読み取りに失敗しています。適切な値を入力してください。");
+                return;
             }
             if(teacherCarData.getText().toString().length() >= 1){
                 classify_num = teacherCarData.getText().toString();
                 teacherCarData.setText("");
             }
+            teacherCarData.setVisibility(View.INVISIBLE);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
             byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -380,7 +379,8 @@ public class MainActivity extends AppCompatActivity {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
                         classify_hiragana = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("\n", "");
-                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n 「撮影した写真を表示(4/4)」ボタンを押してください。");
+                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + classify_hiragana + "\n\n「撮影した写真を表示(4/4)」ボタンを押してください。\n読み取り結果に誤りがあれば修正してください。");
+                        teacherCarData.setVisibility(View.VISIBLE);
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                         imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
@@ -404,6 +404,7 @@ public class MainActivity extends AppCompatActivity {
                 classify_hiragana = teacherCarData.getText().toString();
                 teacherCarData.setText("");
             }
+            teacherCarData.setVisibility(View.INVISIBLE);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cvs4.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
             byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -436,8 +437,8 @@ public class MainActivity extends AppCompatActivity {
                         // Task completed successfully
                         JsonObject annotation = Objects.requireNonNull(task.getResult()).getAsJsonArray().get(0).getAsJsonObject();
                         number = annotation.get("textAnnotations").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString().replace("|", "1").replace("\n", "").replace("·", "0").replace("-", "").replace("I", "1");
-                        //imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n 「放置態様入力画面に移動」ボタンを押してください。");
-                        imageDetail.setText(carNumber_region + "," + classify_num + "," + classify_hiragana + "," + number);
+                        imageDetail.setText("読み取り結果は以下の通りです。:\n\n" + number + "\n\n「放置態様入力画面に移動」ボタンを押してください。\n読み取り結果に誤りがあれば修正してください。");
+                        teacherCarData.setVisibility(View.VISIBLE);
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                         imageDetail.setText("読み取りに失敗しました。テキスト入力欄に正しい値を入力してください。");
